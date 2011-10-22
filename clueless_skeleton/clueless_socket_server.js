@@ -15,7 +15,6 @@ putsMessage=function(message){
 exports.setupsocketserver = function(io){
 exports.socketserver=io.sockets.on('connection', function(socket) {
 	socket.on('clientPlayerJoinGame', function(player) {
-		sys.puts(inspect(socket));
 		putsMessage(['clientPlayerJoinGame', player]);
 		io.sockets.emit('bdcstPlayerJoinedGame', player)
 	});
