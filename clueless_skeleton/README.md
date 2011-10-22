@@ -11,5 +11,8 @@ The code here has basic support for the currently defined messages in the Commun
 
 This function will be called when a `clientPlayerJoinGame` message is received by the server. It will use the `putsMessage` function to print out the message to the console for logging and debugging purposes. It will then emit a `bdcstPlayerJoinedGame` message to all the clients with the player that joined as data.
 
+To run you need node.js installed. See [http://nodejs.org/](http://nodejs.org/). 
+To run this on Mac OS X and Linux `sudo node clueless_server.js`
+To run this on Windows `node.exe clueless_server.js`. I think you will have to have admin rights since it launches a server on port 80.
 
-*version 1.0 10/22/2011 Al Anderson*
+*version 1.1 10/22/2011 Al Anderson*
