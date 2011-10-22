@@ -6,7 +6,7 @@ The code here has basic support for the currently defined messages in the Commun
 `socket.on('clientPlayerJoinGame', function(player) {
 	putsMessage(['clientPlayerJoinGame', player]);
 	io.sockets.emit('bdcstPlayerJoinedGame', player)
-});'
+});`
 
 This function will be called when a `clientPlayerJoinGame` message is received by the server. It will use the `putsMessage` function to print out the message to the console for logging and debugging purposes. It will then emit a `bdcstPlayerJoinedGame` message to all the clients with the player that joined as data.
 
