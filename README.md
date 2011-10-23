@@ -5,4 +5,5 @@ The clueless_skeleton directory contains the first version of the game. See the 
 
 
 version 1.1  10/22/2011 Al Anderson
+
 This uses [Markdown](http://daringfireball.net/projects/markdown/) markup language 
