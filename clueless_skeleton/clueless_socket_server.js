@@ -1,6 +1,10 @@
 var sys = require("sys");
 var inspect = require('util').inspect;
 
+function Player(name){
+	this.name=name;
+}
+
 gameState = {
 	currentPlayer : "",
 	status : "",
@@ -36,8 +40,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//Should this function check for 6 players or does the client?
 		putsMessage(['clientPlayerJoinGame', name]); //Prints message to console
 		//This function shall add the new player to the global players array
-		aPlayer = new Object();
-		aPlayer.name = name;
+		aPlayer = new Player(name);
 		gameState.notReadyPlayers+=1;
 		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
