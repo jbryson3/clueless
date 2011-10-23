@@ -47,8 +47,8 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		io.sockets.emit('bdcstPlayerJoinedGame', aPlayer.name)
 		sys.puts(gameState.notReadyPlayers);
 	});
-	socket.on('clientPlayerPlayerReady', function(message) {
-		putsMessage(['clientPlayerPlayerReady', message]); //Prints message to console
+	socket.on('clientPlayerReady', function(message) {
+		putsMessage(['clientPlayerReady', message]); //Prints message to console
 		//The function shall broadcast to other players that the particular player is ready
 		//The function shall set the player's status to ready in the object that is storing the player's status
 		//The function shall check to see if all the current players are ready
