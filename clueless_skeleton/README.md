@@ -15,6 +15,8 @@ To run you need node.js installed. See [http://nodejs.org/](http://nodejs.org/).
 To run this on Mac OS X and Linux `sudo node clueless_server.js`
 To run this on Windows `node.exe clueless_server.js`. I think you will have to have admin rights since it launches a server on port 80.
 
+Once the node.js server is running access it via a web browser at http://localhost/
+
 The client really has very minimal effort put to it at this time.
 
 *version 1.1 10/22/2011 Al Anderson*
