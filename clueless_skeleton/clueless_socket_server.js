@@ -5,9 +5,18 @@ gameState = {
 	currentPlayer : "",
 	status : "",
 	players : new Array(),
+	notReadyPlayers:0,
+	readyPlayers:0,
+	totalPlayers:0,
 	addPlayer : function(player){
 		gameState.players[gameState.players.length]=player;
 	}
+}
+
+caseFile = {
+	weapon:"",
+	suspect:"",
+	room:""
 }
 
 exports.io = function(server){
@@ -29,8 +38,11 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//This function shall add the new player to the global players array
 		aPlayer = new Object();
 		aPlayer.name = name;
+		gameState.notReadyPlayers+=1;
+		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
 		io.sockets.emit('bdcstPlayerJoinedGame', aPlayer.name)
+		sys.puts(gameState.notReadyPlayers);
 	});
 	socket.on('clientPlayerPlayerReady', function(message) {
 		putsMessage(['clientPlayerPlayerReady', message]); //Prints message to console
