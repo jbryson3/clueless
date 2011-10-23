@@ -1,4 +1,14 @@
 var sys = require("sys");
+var inspect = require('util').inspect;
+
+gameState = {
+	currentPlayer : "",
+	status : "",
+	players : new Array(),
+	addPlayer : function(player){
+		gameState.players[gameState.players.length]=player;
+	}
+}
 
 exports.io = function(server){
 	server.listen(80);	
@@ -13,12 +23,14 @@ putsMessage=function(message){
 
 exports.setupsocketserver = function(io){
 exports.socketserver=io.sockets.on('connection', function(socket) {
-	socket.on('clientPlayerJoinGame', function(player) {
+	socket.on('clientPlayerJoinGame', function(name) {
 		//Should this function check for 6 players or does the client?
-		putsMessage(['clientPlayerJoinGame', player]); //Prints message to console
+		putsMessage(['clientPlayerJoinGame', name]); //Prints message to console
 		//This function shall add the new player to the global players array
-		gameState.addPlayer(player);
-		io.sockets.emit('bdcstPlayerJoinedGame', player)
+		aPlayer = new Object();
+		aPlayer.name = name;
+		gameState.addPlayer(aPlayer);
+		io.sockets.emit('bdcstPlayerJoinedGame', aPlayer.name)
 	});
 	socket.on('clientPlayerPlayerReady', function(message) {
 		putsMessage(['clientPlayerPlayerReady', message]); //Prints message to console
