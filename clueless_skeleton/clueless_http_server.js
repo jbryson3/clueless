@@ -8,6 +8,7 @@ http = require('http');
 
 server = http.createServer(function(req, res) {
 	var request = url.parse(req.url, true);
+	sys.puts(request.pathname);
 	var action = request.pathname;	
 	if (/\.jpeg$/.test(action)) {
 		fs.readFile("" + __dirname + action, "binary", function(err, file){
@@ -41,6 +42,7 @@ server = http.createServer(function(req, res) {
 	
 
 	}else{
+		sys.puts("Asked for nothing");
 		return fs.readFile("" + __dirname + "/index.html", function(err, data) {
 			res.writeHead(200, {
 				'Content-Type': 'text/html'

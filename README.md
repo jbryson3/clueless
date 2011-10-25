@@ -9,13 +9,7 @@ The clueless_skeleton directory contains the first version of the game. See the 
 
 [Node.js Screencasts](http://nodetuts.com/)
 
-**Node.js Testing**
-
-[Expresso](https://github.com/visionmedia/expresso)
-
-[Socket.io Test Suite](https://github.com/LearnBoost/socket.io/tree/master/test) it uses Expresso to do the testing.
-
-[Node.js Testing with Expresso Screencast](http://nodetuts.com/tutorials/20-unit-tests-and-tdd-in-nodejs.html#video)
+Created Unit Test using a simple js file with an assert. Can built on it from there. See in clueless_skeleton/test.
 
 To install Expresso, do `npm install expresso` from the command line in the clueless_skeleton directory. This has to be done locally because there are some things compiled specific to your OS. Do not add these to the git repository. You can tell git to ignore them. 
 
