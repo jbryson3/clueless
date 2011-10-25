@@ -36,6 +36,7 @@ putsMessage=function(message){
 
 exports.setupsocketserver = function(io){
 exports.socketserver=io.sockets.on('connection', function(socket) {
+	
 	socket.on('clientPlayerJoinGame', function(name) {
 		//Should this function check for 6 players or does the client?
 		putsMessage(['clientPlayerJoinGame', name]); //Prints message to console
@@ -87,6 +88,12 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		putsMessage(['clientChatMessage', message]); //Prints message to console
 		//The function shall broadcast the chat message to all the players and spectators
 	});
+
+	socket.on('getNumberOfPlayers', function() {
+		io.sockets.socket(socket.id).emit('totalPlayers',gameState.totalPlayers);
+	});
+	
+	
 });
 return exports.socketserver;
 };
