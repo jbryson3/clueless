@@ -3,13 +3,13 @@ This is the git repository for Team BAM's Clueless Project
 
 The clueless_skeleton directory contains the first version of the game. See the README file in the directory for more details.
 
-Node.js resources
+**Node.js Resources**
 
 [Node.js Resources](https://github.com/joyent/node/wiki/Resources)
 
 [Node.js Screencasts](http://nodetuts.com/)
 
-Node.js Testing
+**Node.js Testing**
 
 [Expresso](https://github.com/visionmedia/expresso)
 
