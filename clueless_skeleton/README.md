@@ -19,4 +19,6 @@ Once the node.js server is running access it via a web browser at http://localho
 
 The client really has very minimal effort put to it at this time.
 
-*version 1.1 10/22/2011 Al Anderson*
+The single test file can be ran with sudo node test/server.test.js (or run as admin for windows I think). Need to work on the socket messaging part of the testing. There is a bunch of extra stuff in the test file. The file is adapted from the socket.io test. Needs some TLC.
+
+*version 1.2 10/24/2011 Al Anderson*
