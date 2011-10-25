@@ -14,6 +14,7 @@
     <button id="connect" onClick='connect()'/>Connect</button>
     <button id="disconnect" onClick='disconnect()'>Disconnect</button>
     <button type=button id="joinGame" />Test Join Game</button>
+    <button type=button id="getNumberOfPlayers" />Get Number of Players</button>
     
     <script>
       function connect() {
@@ -27,6 +28,11 @@
       function status_update(txt){
         document.getElementById('status').innerHTML = txt;
       }
+
+      function message_update(txt){
+        document.getElementById('message').innerHTML = txt;
+      }
+
       
       var socket = io.connect();
       
@@ -37,6 +43,7 @@
       socket.on('reconnecting', function( nextRetry ) { 
       status_update("Reconnecting in " + nextRetry + " seconds"); });
       socket.on('reconnect_failed', function(){ message("Reconnect Failed"); });
+      socket.on('totalPlayers', function(numberOfPlayers){ message_update(numberOfPlayers); });
 
 	socket.on('bdcstPlayerJoinedGame', function(player){
 		$("#message").text("received bdcstPlayerJoinedGame with data " + player);
@@ -47,6 +54,12 @@
 		$("#message").text("sent: clientPlayerJoinGame");
 	  socket.emit("clientPlayerJoinGame", "Al");
 	});
+
+	$("#getNumberOfPlayers").click(function() {
+		$("#message").text("sent: clientPlayerJoinGame");
+	  socket.emit("getNumberOfPlayers");
+	});
+
 	
     </script>
     
