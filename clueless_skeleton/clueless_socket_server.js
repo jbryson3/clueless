@@ -1,8 +1,19 @@
 var sys = require("sys");
 var inspect = require('util').inspect;
 
-function Player(name){
+function Player(name, sessionID){
 	this.name=name;
+	this.sessionID=sessionID;
+}
+
+function Card(type, value){
+	this.type=type;
+	this.value=value;
+}
+
+function CardDeck(type){
+	this.type=type;
+	this.cards=[]
 }
 
 gameState = {
@@ -14,13 +25,19 @@ gameState = {
 	totalPlayers:0,
 	addPlayer : function(player){
 		gameState.players[gameState.players.length]=player;
+	},
+	getPlayerSessionID : function(playerName){
+		for (player in gameState.players){
+			if (player.name == playerName){
+				return player.sessionID;
+			}
+		}
+		return null;
 	}
 }
 
 caseFile = {
-	weapon:"",
-	suspect:"",
-	room:""
+	cards:[]
 }
 
 exports.io = function(server){
@@ -41,7 +58,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//Should this function check for 6 players or does the client?
 		putsMessage(['clientPlayerJoinGame', name]); //Prints message to console
 		//This function shall add the new player to the global players array
-		aPlayer = new Player(name);
+		aPlayer = new Player(name,socket.id);
 		gameState.notReadyPlayers+=1;
 		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
