@@ -1,6 +1,9 @@
 var sys = require("sys");
 var inspect = require('util').inspect;
 
+//Controls whether debug messages from this object get printed or not
+var printDebug=true;
+
 function Player(name, sessionID){
 	this.name=name;
 	this.sessionID=sessionID;
@@ -47,6 +50,10 @@ exports.io = function(server){
 	return io;
 }
 
+printDebug = function(message){
+		sys.puts(message);
+}
+
 putsMessage=function(message){
 	sys.puts("Received Message: '"+ message[0] + "' Data: [" + message[1] + "]" );
 }
@@ -63,7 +70,8 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
 		io.sockets.emit('bdcstPlayerJoinedGame', aPlayer.name)
-		sys.puts(gameState.notReadyPlayers);
+		printDebug("Numer of Players: "+ gameState.notReadyPlayers);
+		printDebug(inspect(gameState.players));
 	});
 	socket.on('clientPlayerReady', function(message) {
 		putsMessage(['clientPlayerReady', message]); //Prints message to console
