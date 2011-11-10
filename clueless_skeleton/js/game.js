@@ -36,13 +36,14 @@ socket.on('bdcstPlayerJoinedGame', function(player){
 });
 
 var joinGame = function(name){
-  socket.emit("clientPlayerJoinGame", name);
+  socket.emit("playerJoinGame", name);
   status = 'joined';
   Set_Cookie('gameStatus','joined','','/','');
   $('#dlgPickPiece').dialog('open');
 }
 
 var chosePiece = function(piece){
+  socket.emit("playerChoseGamePiece", piece);
   writeLog(piece+ " Selected");
   $('#dlgPickPiece').dialog('close');
   return false;
