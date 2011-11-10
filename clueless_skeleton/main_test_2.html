@@ -1,0 +1,52 @@
+   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Clueless Test 2</title>
+</head>
+
+<body>
+	<div id="board" style="width:700px; height:480px; position:absolute; border:2px solid black;">
+		<img id="imgBoard" src="Board.jpeg"/>
+	</div>
+	<div id="dnp" style="left:720px; width:120px; ; height:480px; position:absolute; border:2px solid black;">DetectiveNotePad</div>
+	<div id="players" style="left:850px; width:174px; ; height:360px; position:absolute;">
+		<textarea name="textAreaPlayers" cols="" rows="" wrap="off" id="textAreaPlayers" style="width:172px; height:360px;"></textarea>
+	</div>
+	<div id="action" style="left:850px; top:380px; width:87px; ; height:110px; position:absolute; border:2px solid black;">
+		Description of Action<br/>
+	    <button id="btnAction"> Delete Cookie </button>
+	    <button id="btnChkStatus"> Check Status </button>
+	</div>
+	<div id="action" style="left:947px; top:380px; width:80px; ; height:110px; position:absolute; border:2px solid black;">
+		Cards
+	</div>
+	<div id="log" style="left:10px; width:680px; ; height:230px; top:510px; position:absolute;">
+		<textarea name="textAreaLog" cols="" rows="" wrap="off" id="textAreaLog" style="width:695px; height:230px;"></textarea>
+	</div>
+	<div id="chat" style="left:720px; width:314px; ; height:230px;  top:510px; position:absolute;">
+		<textarea name="textAreaChat" cols="" rows="" wrap="off" id="textAreaChat" style="width:314px; height:230px;"></textarea>
+	</div>
+	<div id="dialog" title="Dialog Title">
+		<p>Do you wish to join the game?</p>
+		Enter Name
+  		<input type="text" name="dlgname" id="dlgNameInput"><br>
+	</div>
+
+	<div id="dlgPickPiece" title="Chose Character">
+		<p>Chose a Character</p>
+	</div>
+  	
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	
+	<link type="text/css" href="css/ui-darkness/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
+	<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+	<script src="/js/ui.js"></script>
+	<script src="/js/game.js"></script>
+
+
+</body>
+</html>
