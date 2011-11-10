@@ -19,6 +19,16 @@ function CardDeck(type){
 	this.cards=[]
 }
 
+function Piece(name, player){
+	this.name = name;
+	this.player=player;
+}
+
+function addPiece(name, player){
+	aPiece = new Piece(name, player);
+	gameState.pieces[gameState.pieces.length]=aPiece;
+}
+
 gameState = {
 	currentPlayer : "",
 	status : "",
@@ -26,9 +36,10 @@ gameState = {
 	notReadyPlayers:0,
 	readyPlayers:0,
 	totalPlayers:0,
+	pieces : new Array(),
 	addPlayer : function(player){
 		gameState.players[gameState.players.length]=player;
-	},
+	},≠
 	getPlayerSessionID : function(playerName){
 		for (player in gameState.players){
 			if (player.name == playerName){
@@ -61,7 +72,7 @@ putsMessage=function(message){
 exports.setupsocketserver = function(io){
 exports.socketserver=io.sockets.on('connection', function(socket) {
 	
-	socket.on('clientPlayerJoinGame', function(name) {
+	socket.on('playerJoinGame', function(name) {
 		//Should this function check for 6 players or does the client?
 		putsMessage(['clientPlayerJoinGame', name]); //Prints message to console
 		//This function shall add the new player to the global players array
@@ -81,7 +92,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//If all the players are ready, the function shall randomly select one card from each of the three card stacks and store the results in the case file
 		//If all the players are ready, the function shall randomly issue the remaining cards to the players. It will send a message to them with their cards
 	});
-	socket.on('clientPlayerChoseGamePiece', function(message) {
+	socket.on('playerChoseGamePiece', function(message) {
 		putsMessage(['clientPlayerChoseGamePiece', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player choose a game piece
 		//The function shall set the player's game piece in the object that is storing the player's status
