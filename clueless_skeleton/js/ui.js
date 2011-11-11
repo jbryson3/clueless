@@ -24,12 +24,6 @@ var setDlgButtons = function(btnName){
 	$('#dlgPickPiece').dialog({ buttons: dialog_buttons });
 };
 
-var mustardAvailable = true;
-var greenAvailable = true;
-var peacockAvailable = false;
-var scarletAvailable = false;
-var whiteAvailable = true;
-var plumAvailable = false;
 
 $('#dlgPickPiece').dialog({
 	autoOpen: false,
@@ -37,26 +31,26 @@ $('#dlgPickPiece').dialog({
 	width: 100
 });
 
-
-if (mustardAvailable==true){
-	setDlgButtons('Mr. Mustard');
-};
-if (greenAvailable==true){
-	setDlgButtons('Mr. Green');
-};
-if (peacockAvailable==true){
-	setDlgButtons('Mrs. Peacock');
-};
-if (scarletAvailable==true){
-	setDlgButtons('Ms. Scarlet');
-};
-if (whiteAvailable==true){
-	setDlgButtons('Mr. White');
-};
-if (plumAvailable==true){
-	setDlgButtons('Mr. Plum');
-};
-
+var setupChoseDialog = function(){
+	if (pieces[0].available==true){
+		setDlgButtons('Mr. Mustard');
+	};
+	if (pieces[1].available==true){
+		setDlgButtons('Mr. Green');
+	};
+	if (pieces[2].available==true){
+		setDlgButtons('Mrs. Peacock');
+	};
+	if (pieces[3].available==true){
+		setDlgButtons('Ms. Scarlet');
+	};
+	if (pieces[4].available==true){
+		setDlgButtons('Mr. White');
+	};
+	if (pieces[5].available==true){
+		setDlgButtons('Mr. Plum');
+	};
+}
 
 $('#btnAction').click(function(){
 	Delete_Cookie('gameStatus','/','');

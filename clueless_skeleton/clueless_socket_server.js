@@ -19,14 +19,35 @@ function CardDeck(type){
 	this.cards=[]
 }
 
-function Piece(name, player){
+function Piece(name, available){
 	this.name = name;
-	this.player=player;
+	this.player='';
+	this.available=available;
+}
+
+function getPieceByName(name){
+		for (var i=0;i<gameState.pieces.length;i++){
+		printDebug(inspect(gameState.pieces[i]));
+		if (gameState.pieces[i].name == name){
+			return gameState.pieces[i];
+		}
+	}
+	return null;
+
 }
 
 function addPiece(name, player){
 	aPiece = new Piece(name, player);
 	gameState.pieces[gameState.pieces.length]=aPiece;
+}
+
+function setupPieces(){
+	addPiece('Mr. Mustard',true);	
+	addPiece('Mr. Green',true);	
+	addPiece('Mrs. Peacock',true);	
+	addPiece('Ms. Scarlet',true);	
+	addPiece('Mr. White',true);	
+	addPiece('Mr. Plum',true);	
 }
 
 gameState = {
@@ -39,7 +60,7 @@ gameState = {
 	pieces : new Array(),
 	addPlayer : function(player){
 		gameState.players[gameState.players.length]=player;
-	},≠
+	},
 	getPlayerSessionID : function(playerName){
 		for (player in gameState.players){
 			if (player.name == playerName){
@@ -47,8 +68,19 @@ gameState = {
 			}
 		}
 		return null;
+	},
+	getPlayerBySessionID : function(sessionID){
+		for (var i=0;i<gameState.players.length;i++){
+			printDebug(inspect(gameState.players[i]));
+			if (gameState.players[i].sessionID == sessionID){
+				return gameState.players[i];
+			}
+		}
+		return null;
 	}
 }
+
+setupPieces();
 
 caseFile = {
 	cards:[]
@@ -80,7 +112,8 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		gameState.notReadyPlayers+=1;
 		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
-		io.sockets.emit('playerJoinedGame', aPlayer.name)
+		io.sockets.emit('playerJoinedGame', aPlayer.name);
+		io.sockets.socket(socket.id).emit('availablePieces', gameState.pieces);
 		printDebug("Numer of Players: "+ gameState.notReadyPlayers);
 		printDebug(inspect(gameState.players));
 	});
@@ -93,7 +126,13 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//If all the players are ready, the function shall randomly issue the remaining cards to the players. It will send a message to them with their cards
 	});
 	socket.on('playerChoseGamePiece', function(message) {
-		putsMessage(['clientPlayerChoseGamePiece', message]); //Prints message to console
+		thePlayer = gameState.getPlayerBySessionID(socket.id);
+		printDebug(socket.id);
+		printDebug(inspect(gameState.players));
+		thePiece = getPieceByName(message);
+		thePiece.available = false;
+		theMessage = thePlayer.name + ' chose ' + message;
+		io.sockets.emit('aPlayerChoseGamePiece', theMessage); //Prints message to console
 		//The function shall broadcast to the other players that the particular player choose a game piece
 		//The function shall set the player's game piece in the object that is storing the player's status
 	});

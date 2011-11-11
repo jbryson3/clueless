@@ -8,6 +8,7 @@ var suggestion = {
 	sRoom:""
 }
 
+var pieces = new Array();
 var $input, socket;
 
 	socket = io.connect();
@@ -31,6 +32,18 @@ socket.on('reconnect_failed', function() {
   writeLog('Failed to reconnect');
 });
 
+socket.on('aPlayerChoseGamePiece', function(message) {
+  writeLog(message);
+});
+
+
+socket.on('availablePieces', function(availablePieces) {
+  pieces=availablePieces;
+  setupChoseDialog();
+  $('#dlgPickPiece').dialog('open');
+});
+
+
 socket.on('playerJoinedGame', function(player){
 	writeLog("Server: " + player + " joined game");
 });
@@ -39,7 +52,6 @@ var joinGame = function(name){
   socket.emit("playerJoinGame", name);
   status = 'joined';
   Set_Cookie('gameStatus','joined','','/','');
-  $('#dlgPickPiece').dialog('open');
 }
 
 var chosePiece = function(piece){
