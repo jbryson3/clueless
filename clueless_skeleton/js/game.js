@@ -31,7 +31,7 @@ socket.on('reconnect_failed', function() {
   writeLog('Failed to reconnect');
 });
 
-socket.on('bdcstPlayerJoinedGame', function(player){
+socket.on('playerJoinedGame', function(player){
 	writeLog("Server: " + player + " joined game");
 });
 

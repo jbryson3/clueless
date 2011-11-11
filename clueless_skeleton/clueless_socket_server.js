@@ -80,7 +80,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		gameState.notReadyPlayers+=1;
 		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
-		io.sockets.emit('bdcstPlayerJoinedGame', aPlayer.name)
+		io.sockets.emit('playerJoinedGame', aPlayer.name)
 		printDebug("Numer of Players: "+ gameState.notReadyPlayers);
 		printDebug(inspect(gameState.players));
 	});
