@@ -129,7 +129,7 @@ function Piece(name, available){
 	this.available=available;
 }
 
-var getPieceByName = function(name){
+function getPieceByName(name){
 		for (var i=0;i<gameState.pieces.length;i++){
 		printDebug(inspect(gameState.pieces[i]));
 		if (gameState.pieces[i].name == name){
@@ -223,11 +223,11 @@ function startGame(){
 	setCurrentPlayer('Miss Scarlet');
 }
 
-printDebug = function(message){
+function printDebug(message){
 		sys.puts(message);
 }
 
-putsMessage=function(message){
+function putsMessage(message){
 	sys.puts("Received Message: '"+ message[0] + "' Data: [" + message[1] + "]" );
 }
 
@@ -274,38 +274,34 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//The function shall broadcast to the other players that the particular player choose a game piece
 		//The function shall set the player's game piece in the object that is storing the player's status
 	});
-	socket.on('clientPlayerLocationChosen', function(message) {
-		putsMessage(['clientPlayerLocationChosen', message]); //Prints message to console
+	socket.on('playerLocationChosen', function(message) {
+		putsMessage(['playerLocationChosen', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has moved to a location
 		//The function shall set the player's location in the object that is storing the player's status
 	});
-	socket.on('clientPlayerSuggestion', function(message) {
-		putsMessage(['clientPlayerSuggestion', message]); //Prints message to console
+	socket.on('playerSuggestion', function(message) {
+		putsMessage(['playerSuggestion', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has made a suggestion
 		//The function shall store the player's suggestion data
 	});
-	socket.on('clientPlayerDisproveSuggestion', function(message) {
-		putsMessage(['clientPlayerDisproveSuggestion', message]); //Prints message to console
+	socket.on('playerDisproveSuggestion', function(message) {
+		putsMessage(['playerDisproveSuggestion', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has shared a card with the suggesting player
 		//The function shall send a message to the suggesting player with the shared card data
 	});
-	socket.on('clientPlayerAccusation', function(message) {
-		putsMessage(['clientPlayerAccusation', message]); //Prints message to console
+	socket.on('playerAccusation', function(message) {
+		putsMessage(['playerAccusation', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has made a accusation
 		//The function shall store the player's accusation data
 		//The function shall check the player's accusation data against the case file
 		//If the accusation is correct, the function shall broadcast a winner message to all the players and end the game
 		//If the accusation is false, the function shall broadcast a bad accusation message and inactivate the accusing player
 	});
-	socket.on('clientChatMessage', function(message) {
-		putsMessage(['clientChatMessage', message]); //Prints message to console
+	socket.on('chatMessage', function(message) {
+		putsMessage(['chatMessage', message]); //Prints message to console
 		//The function shall broadcast the chat message to all the players and spectators
 	});
 
-	socket.on('getNumberOfPlayers', function() {
-		io.sockets.socket(socket.id).emit('totalPlayers',gameState.totalPlayers);
-	});
-	
 	
 });
 return exports.socketserver;
