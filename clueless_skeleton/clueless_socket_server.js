@@ -10,6 +10,7 @@ var weaponsDeck;
 var charactersDeck;
 var roomsDeck;
 var caseFile;
+var wholeDeck;
 
 function Player(name, sessionID){
 	this.name=name;
@@ -37,6 +38,7 @@ CaseFile.prototype.printFile=function(){
 	sys.puts(this.weaponCard);
 	sys.puts(this.characterCard);
 	sys.puts(this.roomCard);
+	sys.puts(" ");
 }
 
 //This uses the Fisher-Yates shuffle algorithm, the inside-out version
@@ -85,6 +87,10 @@ function setupDecks(){
 	weaponsDeck.cards.splice(0,1);
 	charactersDeck.cards.splice(0,1);
 	roomsDeck.cards.splice(0,1);
+	wholeDeck=new CardDeck('whole');
+	wholeDeck.cards=weaponsDeck.cards.concat(charactersDeck.cards,roomsDeck.cards);
+	wholeDeck.shuffle();
+
 }
 
 function Piece(name, available){
@@ -151,12 +157,8 @@ gameState = {
 setupPieces();
 setupDecks();
 
-weaponsDeck.printDeck();
-charactersDeck.printDeck();
-roomsDeck.printDeck();
-
 caseFile.printFile();
-
+wholeDeck.printDeck();
 
 exports.io = function(server){
 	server.listen(80);	
