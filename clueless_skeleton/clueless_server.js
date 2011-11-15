@@ -1,10 +1,11 @@
-exports.http=require('http');
-assert=require('assert');
-exports.server=require('./clueless_http_server.js');
+var http=require('http');
+var assert=require('assert');
+var server=require('./clueless_http_server.js');
 
-exports.clueless_server = require('./clueless_socket_server.js');
-exports.io=exports.clueless_server.io(server);
-exports.socketserver=exports.clueless_server.setupsocketserver(io);
+var clueless_server = require('./clueless_socket_server.js');
+var io=clueless_server.io(server);
+var socketserver=clueless_server.setupsocketserver(io);
+
 
 // cl.get('/',function(res, data){
 // 	callbackFired = true;
