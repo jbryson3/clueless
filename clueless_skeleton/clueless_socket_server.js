@@ -16,6 +16,8 @@ function Player(name, sessionID){
 	this.name=name;
 	this.sessionID=sessionID;
 	this.cards=[];
+	this.piece='';
+	this.status='';
 };
 
 Player.prototype.printCards = function() {
@@ -106,15 +108,19 @@ function setupDecks(){
 //This function deals cards to the players in the players array. Send in the wholeDeck.cards
 function dealCards(players,deck){
 	var i=0;
-	var j;
 	while(i<deck.length){
-		for(j=0;j<players.length;j++){
+		for(var j=0;j<players.length;j++){
 			if (i<deck.length){
 				players[j].cards[players[j].cards.length]=deck[i];
 				i++;
 			}else break;
 		}
 	}
+	//This loops sends the dealt cards to each player
+	for(var j=0;j<players.length;j++){
+		io.sockets.socket(players[j].sessionID).emit('dealtCards', players[j].cards);	
+	}
+		
 }
 
 function Piece(name, available){
@@ -140,12 +146,12 @@ function addPiece(name, player){
 }
 
 function setupPieces(){
-	addPiece('Mr. Mustard',true);	
-	addPiece('Mr. Green',true);	
+	addPiece('Miss Scarlet',true);	
+	addPiece('Colonel Mustard',true);	
+	addPiece('Reverend Green',true);	
 	addPiece('Mrs. Peacock',true);	
-	addPiece('Ms. Scarlet',true);	
-	addPiece('Mr. White',true);	
-	addPiece('Mr. Plum',true);	
+	addPiece('Mrs. White',true);	
+	addPiece('Professor Plum',true);	
 }
 
 gameState = {
@@ -191,6 +197,32 @@ exports.io = function(server){
 	return io;
 }
 
+function chosePieces(players){
+	//This loops has each player select a piece
+	for(var j=0;j<players.length;j++){
+		io.sockets.socket(players[j].sessionID).emit('chosePiece','');	
+	}	
+}
+
+function setCurrentPlayer(pieceName){
+	//This loops has each player select a piece
+	var i=0;
+	var found=false;
+	while(i<gameState.players.length || found==true){	
+		if (gameState.players[i].piece.name===pieceName){
+			gameState.players[i].status='currentPlayer';
+		io.sockets.emit('currentPlayer',gameState.players[i]);	
+		}else gameState.players[i].status='notCurrentPlayer';
+	}
+}
+
+function startGame(){
+	dealCards(gameState.players, wholeDeck);
+	chosePieces(gameState.players);
+	// Need to figure out the first player to start with if no one chose Miss Scarlet
+	setCurrentPlayer('Miss Scarlet');
+}
+
 printDebug = function(message){
 		sys.puts(message);
 }
@@ -215,8 +247,15 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		printDebug("Numer of Players: "+ gameState.notReadyPlayers);
 		printDebug(inspect(gameState.players));
 	});
-	socket.on('clientPlayerReady', function(message) {
-		putsMessage(['clientPlayerReady', message]); //Prints message to console
+	socket.on('playerReady', function(playerSessionID) {
+		var player = gameState.players.getPlayerSessionID(playerSessionID);
+		io.sockets.emit('playerIsReady', player.name);
+		putsMessage(['playerReady', player.name]); //Prints message to console
+		gameState.readyPlayers++;
+		gameState.notReadyPlayers--;
+		if(gameState.readyPlayers==gameState.readyPlayers){
+			startGame();
+		}
 		//The function shall broadcast to other players that the particular player is ready
 		//The function shall set the player's status to ready in the object that is storing the player's status
 		//The function shall check to see if all the current players are ready
@@ -228,6 +267,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		printDebug(socket.id);
 		printDebug(inspect(gameState.players));
 		thePiece = getPieceByName(message);
+		thePlayer.piece=thePiece;
 		thePiece.available = false;
 		theMessage = thePlayer.name + ' chose ' + message;
 		io.sockets.emit('aPlayerChoseGamePiece', theMessage); //Prints message to console
