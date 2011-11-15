@@ -26,17 +26,17 @@ function CardDeck(type){
 	this.cards=[]
 }
 
-function CaseFile(weaponsCard,characterCard,roomCard){
-	this.weaponsCard=weaponsCard;
+function CaseFile(weaponCard,characterCard,roomCard){
+	this.weaponCard=weaponCard;
 	this.characterCard=characterCard;
 	this.roomCard=roomCard;
 }
 
 CaseFile.prototype.printFile=function(){
 	sys.puts("Case File");
-	sys.puts(this.weaponsCard);
-	sys.puts(this.charactersCard);
-	sys.puts(this.roomsCard);
+	sys.puts(this.weaponCard);
+	sys.puts(this.characterCard);
+	sys.puts(this.roomCard);
 }
 
 //This uses the Fisher-Yates shuffle algorithm, the inside-out version
@@ -149,10 +149,14 @@ gameState = {
 }
 
 setupPieces();
+setupDecks();
 
-caseFile = {
-	cards:[]
-}
+weaponsDeck.printDeck();
+charactersDeck.printDeck();
+roomsDeck.printDeck();
+
+caseFile.printFile();
+
 
 exports.io = function(server){
 	server.listen(80);	
