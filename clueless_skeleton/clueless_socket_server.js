@@ -1,8 +1,15 @@
 var sys = require("sys");
 var inspect = require('util').inspect;
 
+
+
 //Controls whether debug messages from this object get printed or not
 var printDebug=true;
+
+var weaponsDeck;
+var charactersDeck;
+var roomsDeck;
+var caseFile;
 
 function Player(name, sessionID){
 	this.name=name;
@@ -19,13 +26,74 @@ function CardDeck(type){
 	this.cards=[]
 }
 
+function CaseFile(weaponsCard,characterCard,roomCard){
+	this.weaponsCard=weaponsCard;
+	this.characterCard=characterCard;
+	this.roomCard=roomCard;
+}
+
+CaseFile.prototype.printFile=function(){
+	sys.puts("Case File");
+	sys.puts(this.weaponsCard);
+	sys.puts(this.charactersCard);
+	sys.puts(this.roomsCard);
+}
+
+//This uses the Fisher-Yates shuffle algorithm, the inside-out version
+CardDeck.prototype.shuffle=function(){
+	var newCards = new Array;
+	newCards[0]=this.cards[0];
+	var i=0
+	for(i=1;i<this.cards.length;i++){
+		var randomNumber=Math.floor(Math.random()*i);
+		newCards[i]=newCards[randomNumber];
+		newCards[randomNumber]=this.cards[i];
+	}
+	this.cards=newCards;
+}
+
+CardDeck.prototype.printDeck=function(){
+	sys.puts("Cards");
+	var i=0
+	for(i=0;i<this.cards.length;i++){
+		sys.puts(this.cards[i].value);
+	}
+	sys.puts(" ");
+
+}
+
+//This function sets up an individual deck, do not call directly
+function setupDeck(type,items){
+	var i=0;
+	var deck=new CardDeck(type);
+	for(i=0;i<items.length;i++){
+		var tempCard=new Card(type,items[i]);
+		deck.cards[deck.cards.length]=tempCard;
+	}
+	deck.shuffle();
+	return deck;
+}
+
+//This function is called to setup all the card decks and create the case file. It also shuffles the decks.
+function setupDecks(){
+
+	weaponsDeck = setupDeck('weapons',['candlestick','knife','lead pipe','revolver','rope','wrench']);
+	charactersDeck = setupDeck('characters',['Mr. Mustard','Mr. Green','Mrs. Peacock','Ms. Scarlet','Mr. White','Mr. Plum']);
+	roomsDeck = setupDeck('rooms',['kitchen','ballroom','conservatory','dining room','library','cellar','lounge','hall','study']);
+
+	caseFile=new CaseFile(weaponsDeck.cards[0].value,charactersDeck.cards[0].value,roomsDeck.cards[0].value);
+	weaponsDeck.cards.splice(0,1);
+	charactersDeck.cards.splice(0,1);
+	roomsDeck.cards.splice(0,1);
+}
+
 function Piece(name, available){
 	this.name = name;
 	this.player='';
 	this.available=available;
 }
 
-function getPieceByName(name){
+var getPieceByName = function(name){
 		for (var i=0;i<gameState.pieces.length;i++){
 		printDebug(inspect(gameState.pieces[i]));
 		if (gameState.pieces[i].name == name){
