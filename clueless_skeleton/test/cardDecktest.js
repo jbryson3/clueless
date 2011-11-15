@@ -7,6 +7,20 @@ var roomsDeck;
 var caseFile;
 var wholeDeck;
 
+function Player(name, sessionID){
+	this.name=name;
+	this.sessionID=sessionID;
+	this.cards=[];
+};
+
+Player.prototype.printCards = function() {
+	sys.puts(this.name + " Cards");
+	for(var i=0;i<this.cards.length;i++){
+		sys.puts(this.cards[i].value);
+	}
+	sys.puts('');
+};
+
 function Card(type, value){
 	this.type=type;
 	this.value=value;
@@ -14,7 +28,7 @@ function Card(type, value){
 
 function CardDeck(type){
 	this.type=type;
-	this.cards=[]
+	this.cards=[];
 }
 
 //This uses the Fisher-Yates shuffle algorithm, the inside-out version
@@ -81,8 +95,33 @@ function setupDecks(){
 	wholeDeck.shuffle();
 }
 
+function dealCards(players,deck){
+	var i=0;
+	var j;
+	while(i<deck.length){
+		for(j=0;j<players.length;j++){
+			if (i<deck.length){
+				players[j].cards[players[j].cards.length]=deck[i];
+				i++;
+			}else break;
+		}
+	}
+}
+
+var players=new Array;
+players[0]=new Player("Al",1);
+players[1]=new Player("Ed",1);
+players[2]=new Player("Susan",1);
+players[3]=new Player("Dan",1);
+
 setupDecks();
 
 caseFile.printFile();
 
 wholeDeck.printDeck();
+
+dealCards(players,wholeDeck.cards);
+
+for(var i=0;i<players.length;i++){
+	players[i].printCards();
+}

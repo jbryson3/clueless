@@ -15,7 +15,16 @@ var wholeDeck;
 function Player(name, sessionID){
 	this.name=name;
 	this.sessionID=sessionID;
-}
+	this.cards=[];
+};
+
+Player.prototype.printCards = function() {
+	sys.puts(this.name + " Cards");
+	for(var i=0;i<this.cards.length;i++){
+		sys.puts(this.cards[i].value);
+	}
+	sys.puts('');
+};
 
 function Card(type, value){
 	this.type=type;
@@ -91,6 +100,21 @@ function setupDecks(){
 	wholeDeck.cards=weaponsDeck.cards.concat(charactersDeck.cards,roomsDeck.cards);
 	wholeDeck.shuffle();
 
+}
+
+
+//This function deals cards to the players in the players array. Send in the wholeDeck.cards
+function dealCards(players,deck){
+	var i=0;
+	var j;
+	while(i<deck.length){
+		for(j=0;j<players.length;j++){
+			if (i<deck.length){
+				players[j].cards[players[j].cards.length]=deck[i];
+				i++;
+			}else break;
+		}
+	}
 }
 
 function Piece(name, available){
