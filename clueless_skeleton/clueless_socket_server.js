@@ -91,7 +91,7 @@ function setupDeck(type,items){
 function setupDecks(){
 
 	weaponsDeck = setupDeck('weapons',['candlestick','knife','lead pipe','revolver','rope','wrench']);
-	charactersDeck = setupDeck('characters',['Colonel Mustard','Reverend Green','Mrs. Peacock','Miss Scarlet','Mrs. White','Professor Plum']);
+	charactersDeck = setupDeck('characters',['Colonel Mustard','Mr. Green','Mrs. Peacock','Miss Scarlet','Mrs. White','Professor Plum']);
 	roomsDeck = setupDeck('rooms',['kitchen','ballroom','conservatory','dining room','library','cellar','lounge','hall','study']);
 
 	caseFile=new CaseFile(weaponsDeck.cards[0].value,charactersDeck.cards[0].value,roomsDeck.cards[0].value);
@@ -148,9 +148,9 @@ function addPiece(name, player){
 function setupPieces(){
 	addPiece('Miss Scarlet',true);	
 	addPiece('Colonel Mustard',true);	
-	addPiece('Reverend Green',true);	
-	addPiece('Mrs. Peacock',true);	
 	addPiece('Mrs. White',true);	
+	addPiece('Mr. Green',true);	
+	addPiece('Mrs. Peacock',true);	
 	addPiece('Professor Plum',true);	
 }
 
@@ -219,7 +219,7 @@ function setCurrentPlayer(pieceName){
 function startGame(){
 	dealCards(gameState.players, wholeDeck);
 	chosePieces(gameState.players);
-	// Need to figure out the first player to start with if no one chose Miss Scarlet
+	// Need to figure out the first player to start with if no one choses Miss Scarlet
 	setCurrentPlayer('Miss Scarlet');
 }
 
