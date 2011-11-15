@@ -78,7 +78,7 @@ function setupDeck(type,items){
 function setupDecks(){
 
 	weaponsDeck = setupDeck('weapons',['candlestick','knife','lead pipe','revolver','rope','wrench']);
-	charactersDeck = setupDeck('characters',['Mr. Mustard','Mr. Green','Mrs. Peacock','Ms. Scarlet','Mr. White','Mr. Plum']);
+	charactersDeck = setupDeck('characters',['Colonel Mustard','Reverend Green','Mrs. Peacock','Miss Scarlet','Mrs. White','Professor Plum']);
 	roomsDeck = setupDeck('rooms',['kitchen','ballroom','conservatory','dining room','library','cellar','lounge','hall','study']);
 
 	caseFile=new CaseFile(weaponsDeck.cards[0].value,charactersDeck.cards[0].value,roomsDeck.cards[0].value);

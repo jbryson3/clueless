@@ -5,6 +5,7 @@ var weaponsDeck;
 var charactersDeck;
 var roomsDeck;
 var caseFile;
+var wholeDeck;
 
 function Card(type, value){
 	this.type=type;
@@ -50,6 +51,7 @@ CaseFile.prototype.printFile=function(){
 	sys.puts(this.weaponsCard);
 	sys.puts(this.charactersCard);
 	sys.puts(this.roomsCard);
+	sys.puts(" ");
 
 }
 
@@ -74,12 +76,13 @@ function setupDecks(){
 	weaponsDeck.cards.splice(0,1);
 	charactersDeck.cards.splice(0,1);
 	roomsDeck.cards.splice(0,1);
+	wholeDeck=new CardDeck('whole');
+	wholeDeck.cards=weaponsDeck.cards.concat(charactersDeck.cards,roomsDeck.cards);
+	wholeDeck.shuffle();
 }
 
 setupDecks();
 
-weaponsDeck.printDeck();
-charactersDeck.printDeck();
-roomsDeck.printDeck();
-
 caseFile.printFile();
+
+wholeDeck.printDeck();
