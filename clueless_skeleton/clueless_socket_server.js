@@ -11,6 +11,9 @@ var charactersDeck;
 var roomsDeck;
 var caseFile;
 var wholeDeck;
+var currentChoosingPlayer=0;
+var turnList=new Array;
+var turnNumber=0;
 
 function Player(name, sessionID){
 	this.name=name;
@@ -199,28 +202,41 @@ exports.io = function(server){
 
 function chosePieces(players){
 	//This loops has each player select a piece
-	for(var j=0;j<players.length;j++){
-		io.sockets.socket(players[j].sessionID).emit('chosePiece','');	
-	}	
+	io.sockets.socket(players[currentChoosingPlayer].sessionID).emit('chosePiece','');	
+	currentChoosingPlayer++;
 }
 
-function setCurrentPlayer(pieceName){
-	//This loops has each player select a piece
-	var i=0;
-	var found=false;
-	while(i<gameState.players.length || found==true){	
-		if (gameState.players[i].piece.name===pieceName){
-			gameState.players[i].status='currentPlayer';
-		io.sockets.emit('currentPlayer',gameState.players[i]);	
-		}else gameState.players[i].status='notCurrentPlayer';
+// This function sets the current player from turnNumber which starts at 0. So the turnList array stores the order
+// of the players, we walk through that array as the game progresses. 
+function setCurrentPlayer(){
+		for (var i=0;i<gameState.players.length;i++){
+			if (i==turnNumber){
+				turnList[i].status='currentPlayer';
+			}else turnList[i].status='notCurrentPlayer';
+		}
+		io.sockets.emit('startTurn',turnList[i]);
+		if(turnNumber=gameState.players.length-1){
+			turnNumber=0;
+		}else turnNumber++;
+}
+
+function dealAndChoosePieces(){
+	dealCards(gameState.players, wholeDeck);
+	chosePieces(gameState.players);
+}
+
+function orderPlayers(){
+	for(var i=0;i<gameState.pieces.length;i++){
+		if(gameState.pieces[i].player!=''){
+			turnList[i]=gameState.pieces[i].player;
+		}
 	}
 }
 
 function startGame(){
-	dealCards(gameState.players, wholeDeck);
-	chosePieces(gameState.players);
-	// Need to figure out the first player to start with if no one choses Miss Scarlet
-	setCurrentPlayer('Miss Scarlet');
+	orderPlayers();
+	setCurrentPlayer();
+	gameState.status='playing';
 }
 
 function printDebug(message){
@@ -254,7 +270,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		gameState.readyPlayers++;
 		gameState.notReadyPlayers--;
 		if(gameState.readyPlayers==gameState.readyPlayers){
-			startGame();
+			dealAndChoosePieces();
 		}
 		//The function shall broadcast to other players that the particular player is ready
 		//The function shall set the player's status to ready in the object that is storing the player's status
@@ -264,13 +280,23 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 	});
 	socket.on('playerChoseGamePiece', function(message) {
 		thePlayer = gameState.getPlayerBySessionID(socket.id);
-		printDebug(socket.id);
-		printDebug(inspect(gameState.players));
 		thePiece = getPieceByName(message);
 		thePlayer.piece=thePiece;
+		thePiece.player=thePlayer;
 		thePiece.available = false;
 		theMessage = thePlayer.name + ' chose ' + message;
 		io.sockets.emit('aPlayerChoseGamePiece', theMessage); //Prints message to console
+		
+		/*
+		So to get this working for players to choose pieces, we first kick this off above in the startGame function
+		then that calls the chosePieces function where var currentChoosingPlayer is set to 0, after they are sent
+		a message to chose a piece, that var is incremented. Then the server sits and waits for the player to chose a piece,
+		once they have choosen, then this function is called, the piece gets stored and removed from the available list
+		then we call the next player until all players have choosen.		
+		*/
+		if (currentChoosingPlayer<gameState.players.length){
+			chosePieces(gameState.players);
+		}else startGame();
 		//The function shall broadcast to the other players that the particular player choose a game piece
 		//The function shall set the player's game piece in the object that is storing the player's status
 	});
