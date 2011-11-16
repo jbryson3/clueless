@@ -1,7 +1,6 @@
 var sys = require("sys");
 var inspect = require('util').inspect;
-
-
+require('player.js');
 
 //Controls whether debug messages from this object get printed or not
 var printDebug=true;
@@ -15,21 +14,6 @@ var currentChoosingPlayer=0;
 var turnList=new Array;
 var turnNumber=0;
 
-function Player(name, sessionID){
-	this.name=name;
-	this.sessionID=sessionID;
-	this.cards=[];
-	this.piece='';
-	this.status='';
-};
-
-Player.prototype.printCards = function() {
-	sys.puts(this.name + " Cards");
-	for(var i=0;i<this.cards.length;i++){
-		sys.puts(this.cards[i].value);
-	}
-	sys.puts('');
-};
 
 function Card(type, value){
 	this.type=type;
