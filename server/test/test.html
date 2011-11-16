@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.io Test</title>
+        
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+
+  </head>
+  <body>
+    <h1>Socket.io Test</h1>
+    <div><p id="status">Waiting for input</p></div>
+    <div><p id="message">#</p></div>
+    <button id="connect" onClick='connect()'/>Connect</button>
+    <button id="disconnect" onClick='disconnect()'>Disconnect</button>
+    <button type=button id="joinGame" />Test Join Game</button>
+    <button type=button id="getNumberOfPlayers" />Get Number of Players</button>
+    
+    <script>
+      function connect() {
+        socket.connect();    
+      }
+        
+      function disconnect() {
+        socket.disconnect();
+      }
+        
+      function status_update(txt){
+        document.getElementById('status').innerHTML = txt;
+      }
+
+      function message_update(txt){
+        document.getElementById('message').innerHTML = txt;
+      }
+
+      
+      var socket = io.connect();
+      
+        
+      socket.on('connect', function(){ status_update("Connected"); });
+      socket.on('disconnect', function(){ status_update("Disconnected"); });
+      socket.on('reconnect', function(){ status_update("Reconnected"); });
+      socket.on('reconnecting', function( nextRetry ) { 
+      status_update("Reconnecting in " + nextRetry + " seconds"); });
+      socket.on('reconnect_failed', function(){ message("Reconnect Failed"); });
+      socket.on('totalPlayers', function(numberOfPlayers){ message_update(numberOfPlayers); });
+
+	socket.on('bdcstPlayerJoinedGame', function(player){
+		$("#message").text("received bdcstPlayerJoinedGame with data " + player);
+	});
+
+
+	$("#joinGame").click(function() {
+		$("#message").text("sent: clientPlayerJoinGame");
+	  socket.emit("clientPlayerJoinGame", "Al");
+	});
+
+	$("#getNumberOfPlayers").click(function() {
+		$("#message").text("sent: clientPlayerJoinGame");
+	  socket.emit("getNumberOfPlayers");
+	});
+
+	
+    </script>
+    
+  </body>
+</html>
