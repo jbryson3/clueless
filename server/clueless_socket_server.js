@@ -34,7 +34,7 @@ function addPiece(name, player){
 	gameState.pieces[gameState.pieces.length]=aPiece;
 }
 
-function setupPieces(){
+gameState.prototype.setupPieces = function(){
 	addPiece('Miss Scarlet',true);	
 	addPiece('Colonel Mustard',true);	
 	addPiece('Mrs. White',true);	
@@ -51,32 +51,44 @@ gameState = {
 	readyPlayers:0,
 	totalPlayers:0,
 	pieces : new Array(),
-	addPlayer : function(player){
-		gameState.players[gameState.players.length]=player;
-	},
-	getPlayerSessionID : function(playerName){
-		for (player in gameState.players){
-			if (player.name == playerName){
-				return player.sessionID;
-			}
+}
+
+
+gameState.prototype.getPlayerBySessionID = function(sessionID){
+	for (var i=0;i<gameState.players.length;i++){
+		printDebug(inspect(gameState.players[i]));
+		if (gameState.players[i].sessionID == sessionID){
+			return gameState.players[i];
 		}
-		return null;
-	},
-	getPlayerBySessionID : function(sessionID){
-		for (var i=0;i<gameState.players.length;i++){
-			printDebug(inspect(gameState.players[i]));
-			if (gameState.players[i].sessionID == sessionID){
-				return gameState.players[i];
-			}
+	}
+	return null;
+}
+
+
+gameState.prototype.addPlayer = function(player){
+	gameState.players[gameState.players.length]=player;
+}
+
+gameState.prototype.getPlayerSessionID = function(playerName){
+	for (player in gameState.players){
+		if (player.name == playerName){
+			return player.sessionID;
 		}
-		return null;
+	}
+	return null;
+}
+
+gameState.prototype.orderPlayers = function(){
+	for(var i=0;i<gameState.pieces.length;i++){
+		if(gameState.pieces[i].player!=''){
+			turnList[i]=gameState.pieces[i].player;
+		}
 	}
 }
 
 
-
-setupPieces();
-setupDecks();
+gameState.setupPieces();
+gameState.setupDecks();
 
 caseFile.printFile();
 wholeDeck.printDeck();
