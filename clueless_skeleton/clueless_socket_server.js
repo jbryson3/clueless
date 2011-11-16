@@ -200,8 +200,10 @@ exports.io = function(server){
 	return io;
 }
 
+// This gets called the first time once everybody is ready, currentChoosingPlayer starts at 0, the first player to join
+// then after this the server waits for the player to choose a piece, once she has done that, this function is called again
+// for the next player. This is called until all the players have chosen a piece.
 function chosePieces(players){
-	//This loops has each player select a piece
 	io.sockets.socket(players[currentChoosingPlayer].sessionID).emit('chosePiece','');	
 	currentChoosingPlayer++;
 }
