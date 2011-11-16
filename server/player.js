@@ -16,10 +16,4 @@ Player.prototype.printCards = function() {
 	sys.puts('');
 };
 
-Player.prototype.orderPlayers = function(){
-	for(var i=0;i<gameState.pieces.length;i++){
-		if(gameState.pieces[i].player!=''){
-			turnList[i]=gameState.pieces[i].player;
-		}
-	}
-}
+
