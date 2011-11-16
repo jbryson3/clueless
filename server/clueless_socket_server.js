@@ -1,114 +1,16 @@
 var sys = require("sys");
 var inspect = require('util').inspect;
-require('player.js');
+require('./player.js');
+require('./cardsAndDecks.js');
 
 //Controls whether debug messages from this object get printed or not
 var printDebug=true;
 
-var weaponsDeck;
-var charactersDeck;
-var roomsDeck;
-var caseFile;
-var wholeDeck;
 var currentChoosingPlayer=0;
 var turnList=new Array;
 var turnNumber=0;
 
 
-function Card(type, value){
-	this.type=type;
-	this.value=value;
-}
-
-function CardDeck(type){
-	this.type=type;
-	this.cards=[]
-}
-
-function CaseFile(weaponCard,characterCard,roomCard){
-	this.weaponCard=weaponCard;
-	this.characterCard=characterCard;
-	this.roomCard=roomCard;
-}
-
-CaseFile.prototype.printFile=function(){
-	sys.puts("Case File");
-	sys.puts(this.weaponCard);
-	sys.puts(this.characterCard);
-	sys.puts(this.roomCard);
-	sys.puts(" ");
-}
-
-//This uses the Fisher-Yates shuffle algorithm, the inside-out version
-CardDeck.prototype.shuffle=function(){
-	var newCards = new Array;
-	newCards[0]=this.cards[0];
-	var i=0
-	for(i=1;i<this.cards.length;i++){
-		var randomNumber=Math.floor(Math.random()*i);
-		newCards[i]=newCards[randomNumber];
-		newCards[randomNumber]=this.cards[i];
-	}
-	this.cards=newCards;
-}
-
-CardDeck.prototype.printDeck=function(){
-	sys.puts("Cards");
-	var i=0
-	for(i=0;i<this.cards.length;i++){
-		sys.puts(this.cards[i].value);
-	}
-	sys.puts(" ");
-
-}
-
-//This function sets up an individual deck, do not call directly
-function setupDeck(type,items){
-	var i=0;
-	var deck=new CardDeck(type);
-	for(i=0;i<items.length;i++){
-		var tempCard=new Card(type,items[i]);
-		deck.cards[deck.cards.length]=tempCard;
-	}
-	deck.shuffle();
-	return deck;
-}
-
-//This function is called to setup all the card decks and create the case file. It also shuffles the decks.
-function setupDecks(){
-
-	weaponsDeck = setupDeck('weapons',['candlestick','knife','lead pipe','revolver','rope','wrench']);
-	charactersDeck = setupDeck('characters',['Colonel Mustard','Mr. Green','Mrs. Peacock','Miss Scarlet','Mrs. White','Professor Plum']);
-	roomsDeck = setupDeck('rooms',['kitchen','ballroom','conservatory','dining room','library','cellar','lounge','hall','study']);
-
-	caseFile=new CaseFile(weaponsDeck.cards[0].value,charactersDeck.cards[0].value,roomsDeck.cards[0].value);
-	weaponsDeck.cards.splice(0,1);
-	charactersDeck.cards.splice(0,1);
-	roomsDeck.cards.splice(0,1);
-	wholeDeck=new CardDeck('whole');
-	wholeDeck.cards=weaponsDeck.cards.concat(charactersDeck.cards,roomsDeck.cards);
-	wholeDeck.shuffle();
-
-}
-
-
-//This function deals cards to the players in the players array. Send in the wholeDeck.cards
-function dealCards(players,deck){
-	var i=0;
-	while(i<deck.length){
-		for(var j=0;j<players.length;j++){
-			if (i<deck.length){
-				players[j].cards[players[j].cards.length]=deck[i];
-				i++;
-			}else break;
-		}
-	}
-	//This loops sends the dealt cards to each player
-	for(var j=0;j<players.length;j++){
-		io.sockets.socket(players[j].sessionID).emit('dealtCards', players[j].cards);	
-	}
-		
-}
 
 function Piece(name, available){
 	this.name = name;
@@ -171,6 +73,8 @@ gameState = {
 	}
 }
 
+
+
 setupPieces();
 setupDecks();
 
@@ -211,13 +115,6 @@ function dealAndChoosePieces(){
 	chosePieces(gameState.players);
 }
 
-function orderPlayers(){
-	for(var i=0;i<gameState.pieces.length;i++){
-		if(gameState.pieces[i].player!=''){
-			turnList[i]=gameState.pieces[i].player;
-		}
-	}
-}
 
 function startGame(){
 	orderPlayers();

@@ -1,3 +1,5 @@
+var sys = require("sys");
+
 Player = function(name, sessionID){
 	this.name=name;
 	this.sessionID=sessionID;
@@ -13,3 +15,11 @@ Player.prototype.printCards = function() {
 	}
 	sys.puts('');
 };
+
+orderPlayers = function(){
+	for(var i=0;i<gameState.pieces.length;i++){
+		if(gameState.pieces[i].player!=''){
+			turnList[i]=gameState.pieces[i].player;
+		}
+	}
+}
