@@ -8,12 +8,10 @@ var GameState = require('./gamestate');
 var gameState = new GameState();
 gameState.setupPieces();
 
-var wholeDeckAndCaseFile = gameState.setupDecks();
-var wholeDeck=wholeDeckAndCaseFile.wholeDeck;
-var caseFile = wholeDeckAndCaseFile.caseFile;
+gameState.setupDecks();
 
-caseFile.printFile();
-wholeDeck.printDeck();
+gameState.caseFile.printFile();
+gameState.wholeDeck.printDeck();
 
 exports.io = function(server){
 	server.listen(80);	
@@ -55,7 +53,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		gameState.readyPlayers++;
 		gameState.notReadyPlayers--;
 		if(gameState.readyPlayers==gameState.readyPlayers){
-			dealAndChoosePieces();
+			gameState.dealAndChoosePieces();
 		}
 		//The function shall broadcast to other players that the particular player is ready
 		//The function shall set the player's status to ready in the object that is storing the player's status
@@ -65,7 +63,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 	});
 	socket.on('playerChoseGamePiece', function(message) {
 		thePlayer = gameState.getPlayerBySessionID(socket.id);
-		thePiece = getPieceByName(message);
+		thePiece = gameState.getPieceByName(message);
 		thePlayer.piece=thePiece;
 		thePiece.player=thePlayer;
 		thePiece.available = false;
@@ -80,7 +78,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		then we call the next player until all players have choosen.		
 		*/
 		if (currentChoosingPlayer<gameState.players.length){
-			chosePieces(gameState.players, io);
+			chosePieces(io);
 		}else startGame();
 		//The function shall broadcast to the other players that the particular player choose a game piece
 		//The function shall set the player's game piece in the object that is storing the player's status

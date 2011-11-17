@@ -1,5 +1,7 @@
 var sys = require('sys');
 var inspect = require('util').inspect;
+var CaseFile=require('./casefile');
+var CardDeck=require('./carddeck');
 
 GameState = function(){
     this.currentPlayer = "";
@@ -12,12 +14,23 @@ GameState = function(){
     this.turnList = new Array();
     this.turnNumber=0;
     this.currentChoosingPlayer=0;
+    this.wholeDeck=new CardDeck();
+    this.caseFile=new CaseFile();
 };
 
+GameState.prototype.getPieceByName = function(name){
+		for (var i=0;i<this.pieces.length;i++){
+		if (this.pieces[i].name == name){
+			return this.pieces[i];
+		}
+	}
+	return null;
+}
 
-
-GameState.prototype.chosePieces = function(players,io){
-	io.sockets.socket(players[currentChoosingPlayer].sessionID).emit('chosePiece','');	
+GameState.prototype.chosePieces = function(io){
+	if (io!=''){
+		io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('chosePiece','');	
+	}
 	this.currentChoosingPlayer++;
 }
 
@@ -61,7 +74,7 @@ GameState.prototype.getPlayerBySessionID = function(sessionID){
 
 
 GameState.prototype.addPlayer = function(player){
-	this.players[GameState.players.length]=player;
+	this.players[this.players.length]=player;
 }
 
 GameState.prototype.getPlayerByName = function(playerName){
@@ -95,17 +108,14 @@ GameState.prototype.setupDecks = function(){
 	var roomsDeck = new CardDeck();
 	roomsDeck.initialize('rooms',['kitchen','ballroom','conservatory','dining room','library','cellar','lounge','hall','study']);
 
-	var caseFile=new CaseFile();
-	caseFile.initialize(weaponsDeck.cards[0].value,charactersDeck.cards[0].value,roomsDeck.cards[0].value);
+	this.caseFile.initialize(weaponsDeck.cards[0].value,charactersDeck.cards[0].value,roomsDeck.cards[0].value);
 
 	weaponsDeck.cards.splice(0,1);
 	charactersDeck.cards.splice(0,1);
 	roomsDeck.cards.splice(0,1);
-	var wholeDeck=new CardDeck();
-	wholeDeck.initialize('whole','');
-	wholeDeck.cards=weaponsDeck.cards.concat(charactersDeck.cards,roomsDeck.cards);
-	wholeDeck.shuffle();
-	return {wholeDeck:wholeDeck, caseFile:caseFile};
+	this.wholeDeck.initialize('whole','');
+	this.wholeDeck.cards=weaponsDeck.cards.concat(charactersDeck.cards,roomsDeck.cards);
+	this.wholeDeck.shuffle();
 }
 
 
@@ -116,24 +126,26 @@ GameState.prototype.setupDecks = function(){
 // This function sets the current player from turnNumber which starts at 0. So the turnList array stores the order
 // of the players, we walk through that array as the game progresses. 
 GameState.prototype.dealAndChoosePieces = function(){
-	dealCards(this.players, wholeDeck);
+	dealCards();
 	chosePieces(this.players, io);
 }
 
 //This function deals cards to the players in the players array. Send in the wholeDeck.cards
-GameState.prototype.dealCards = function(players,deck){
+GameState.prototype.dealCards = function(io){
 	var i=0;
-	while(i<deck.length){
-		for(var j=0;j<players.length;j++){
-			if (i<deck.length){
-				players[j].cards[players[j].cards.length]=deck[i];
+	while(i<this.wholeDeck.cards.length){
+		for(var j=0;j<this.players.length;j++){
+			if (i<this.wholeDeck.cards.length){
+				this.players[j].cards[this.players[j].cards.length]=this.wholeDeck.cards[i];
 				i++;
 			}else break;
 		}
 	}
-	//This loops sends the dealt cards to each player
-	for(var j=0;j<players.length;j++){
-		io.sockets.socket(players[j].sessionID).emit('dealtCards', players[j].cards);	
+	if(io!=''){
+		//This loops sends the dealt cards to each player
+		for(var j=0;j<this.players.length;j++){
+			io.sockets.socket(this.players[j].sessionID).emit('dealtCards', this.players[j].cards);	
+		}
 	}
 		
 }
