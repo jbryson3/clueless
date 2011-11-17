@@ -1,94 +1,16 @@
 var sys = require("sys");
 var inspect = require('util').inspect;
-require('./player.js');
-require('./cardsAndDecks.js');
 
 //Controls whether debug messages from this object get printed or not
 var printDebug=true;
 
-var currentChoosingPlayer=0;
-var turnList=new Array;
-var turnNumber=0;
-
-
-
-function Piece(name, available){
-	this.name = name;
-	this.player='';
-	this.available=available;
-}
-
-function getPieceByName(name){
-		for (var i=0;i<gameState.pieces.length;i++){
-		printDebug(inspect(gameState.pieces[i]));
-		if (gameState.pieces[i].name == name){
-			return gameState.pieces[i];
-		}
-	}
-	return null;
-
-}
-
-function addPiece(name, player){
-	aPiece = new Piece(name, player);
-	gameState.pieces[gameState.pieces.length]=aPiece;
-}
-
-gameState.prototype.setupPieces = function(){
-	addPiece('Miss Scarlet',true);	
-	addPiece('Colonel Mustard',true);	
-	addPiece('Mrs. White',true);	
-	addPiece('Mr. Green',true);	
-	addPiece('Mrs. Peacock',true);	
-	addPiece('Professor Plum',true);	
-}
-
-gameState = {
-	currentPlayer : "",
-	status : "",
-	players : new Array(),
-	notReadyPlayers:0,
-	readyPlayers:0,
-	totalPlayers:0,
-	pieces : new Array(),
-}
-
-
-gameState.prototype.getPlayerBySessionID = function(sessionID){
-	for (var i=0;i<gameState.players.length;i++){
-		printDebug(inspect(gameState.players[i]));
-		if (gameState.players[i].sessionID == sessionID){
-			return gameState.players[i];
-		}
-	}
-	return null;
-}
-
-
-gameState.prototype.addPlayer = function(player){
-	gameState.players[gameState.players.length]=player;
-}
-
-gameState.prototype.getPlayerSessionID = function(playerName){
-	for (player in gameState.players){
-		if (player.name == playerName){
-			return player.sessionID;
-		}
-	}
-	return null;
-}
-
-gameState.prototype.orderPlayers = function(){
-	for(var i=0;i<gameState.pieces.length;i++){
-		if(gameState.pieces[i].player!=''){
-			turnList[i]=gameState.pieces[i].player;
-		}
-	}
-}
-
-
+var GameState = require('./gamestate');
+var gameState = new GameState();
 gameState.setupPieces();
-gameState.setupDecks();
+
+var wholeDeckAndCaseFile = gameState.setupDecks();
+var wholeDeck=wholeDeckAndCaseFile.wholeDeck;
+var caseFile = wholeDeckAndCaseFile.caseFile;
 
 caseFile.printFile();
 wholeDeck.printDeck();
@@ -98,40 +20,6 @@ exports.io = function(server){
 	io = require('socket.io').listen(server);
 	io.set('log level', 1);
 	return io;
-}
-
-// This gets called the first time once everybody is ready, currentChoosingPlayer starts at 0, the first player to join
-// then after this the server waits for the player to choose a piece, once she has done that, this function is called again
-// for the next player. This is called until all the players have chosen a piece.
-function chosePieces(players){
-	io.sockets.socket(players[currentChoosingPlayer].sessionID).emit('chosePiece','');	
-	currentChoosingPlayer++;
-}
-
-// This function sets the current player from turnNumber which starts at 0. So the turnList array stores the order
-// of the players, we walk through that array as the game progresses. 
-function setCurrentPlayer(){
-		for (var i=0;i<gameState.players.length;i++){
-			if (i==turnNumber){
-				turnList[i].status='currentPlayer';
-			}else turnList[i].status='notCurrentPlayer';
-		}
-		io.sockets.emit('startTurn',turnList[i]);
-		if(turnNumber=gameState.players.length-1){
-			turnNumber=0;
-		}else turnNumber++;
-}
-
-function dealAndChoosePieces(){
-	dealCards(gameState.players, wholeDeck);
-	chosePieces(gameState.players);
-}
-
-
-function startGame(){
-	orderPlayers();
-	setCurrentPlayer();
-	gameState.status='playing';
 }
 
 function printDebug(message){
@@ -146,10 +34,12 @@ exports.setupsocketserver = function(io){
 exports.socketserver=io.sockets.on('connection', function(socket) {
 	
 	socket.on('playerJoinGame', function(name) {
+		var Player = require('./player');
 		//Should this function check for 6 players or does the client?
 		putsMessage(['clientPlayerJoinGame', name]); //Prints message to console
 		//This function shall add the new player to the global players array
-		aPlayer = new Player(name,socket.id);
+		aPlayer = new Player();
+		aPlayer.initialize(name,socket.id);
 		gameState.notReadyPlayers+=1;
 		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
@@ -190,7 +80,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		then we call the next player until all players have choosen.		
 		*/
 		if (currentChoosingPlayer<gameState.players.length){
-			chosePieces(gameState.players);
+			chosePieces(gameState.players, io);
 		}else startGame();
 		//The function shall broadcast to the other players that the particular player choose a game piece
 		//The function shall set the player's game piece in the object that is storing the player's status
