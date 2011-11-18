@@ -26,9 +26,22 @@ GameState.prototype.getPieceByName = function(name){
 	}
 	return null;
 }
+GameState.prototype.getAvailablePieces = function(){
+	var availablePieces = new Array;
+	sys.puts(this.pieces.length);
+	for(var i=0; i<this.pieces.length;i++){
+		if(this.pieces[i].available==true){
+			availablePieces[availablePieces.length]=this.pieces[i];
+		}
+	}
+	return availablePieces;
+}
 
 GameState.prototype.chosePieces = function(io){
+	var availablePieces=this.getAvailablePieces();
 	if (io!=''){
+		io.sockets.emit('alert',this.players[this.currentChoosingPlayer].name + ' is choosing a game piece now');
+		io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('availablePieces',availablePieces);	
 		io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('chosePiece','');	
 	}
 	this.currentChoosingPlayer++;
@@ -125,9 +138,9 @@ GameState.prototype.setupDecks = function(){
 
 // This function sets the current player from turnNumber which starts at 0. So the turnList array stores the order
 // of the players, we walk through that array as the game progresses. 
-GameState.prototype.dealAndChoosePieces = function(){
-	dealCards();
-	chosePieces(this.players, io);
+GameState.prototype.dealAndChoosePieces = function(io){
+	this.dealCards(io);
+	this.chosePieces(io);
 }
 
 //This function deals cards to the players in the players array. Send in the wholeDeck.cards
