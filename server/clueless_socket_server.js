@@ -87,13 +87,19 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//The function shall broadcast to the other players that the particular player has moved to a location
 		//The function shall set the player's location in the object that is storing the player's status
 	});
-	socket.on('playerSuggestion', function(message) {
-		putsMessage(['playerSuggestion', message]); //Prints message to console
+	socket.on('playerSuggestion', function(suggestion) {
+		io.socket.emit('playerMadeSuggestion',suggestion)
+		putsMessage(['playerSuggestion', suggestion]); //Prints message to console
+
+		var dpInfo = gameState.getFirstDisprovingPlayer(suggestion);
+		if(dpInfo != ''){
+			io.socket.sockets.(dpInfo.player.sessionID).emit('disproveSuggestion',dpInfo.cards)
+		}else gameState.nextTurn();
 		//The function shall broadcast to the other players that the particular player has made a suggestion
 		//The function shall store the player's suggestion data
 	});
-	socket.on('playerDisproveSuggestion', function(message) {
-		putsMessage(['playerDisproveSuggestion', message]); //Prints message to console
+	socket.on('playerDisprovedSuggestion', function(message) {
+		putsMessage(['aPlayerDisprovedSuggestion', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has shared a card with the suggesting player
 		//The function shall send a message to the suggesting player with the shared card data
 	});

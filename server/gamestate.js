@@ -169,4 +169,27 @@ GameState.prototype.startGame = function(){
 	this.status='playing';
 }
 
+GameState.prototype.getFirstDisprovingPlayer = function(suggestion){
+	var cards='';
+	var i=0;
+	for(var i=0;i<this.pieces.length;i++){
+		if(this.pieces[i].player != undefined){
+		cards = this.checkCards(this.pieces[i].player.cards,suggestion);
+		if(cards != ''){
+			return {player:this.pieces[i].player, cards:cards};
+		}
+	}
+	return '';
+}
+
+GameState.prototype.getDisprovingCards = function(cards,suggestion){
+	var disprovingCards = new Array;
+	for(var i=0;i<cards.length,i++){
+		if(cards[i].value=suggestion.weapon||cards[i].value=suggestion.room||cards[i].value=suggestion.character){
+			disprovingCards[disprovingCards.length]=cards[i];
+		}
+	}
+	return disprovingCards;
+}
+
 module.exports = GameState;
