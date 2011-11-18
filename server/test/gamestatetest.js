@@ -41,6 +41,7 @@ assert.equal(gamestate.players[2].name,'Kim');
 assert.equal(gamestate.players[0].sessionID,123);
 assert.equal(gamestate.players[1].sessionID,124);
 assert.equal(gamestate.players[2].sessionID,125);
+assert.isNotUndefined(gamestate.getPlayerBySessionID(123));
 
 assert.equal(gamestate.currentChoosingPlayer,0);
 gamestate.chosePieces('');

@@ -2,7 +2,6 @@ var sys = require("sys");
 var inspect = require('util').inspect;
 
 //Controls whether debug messages from this object get printed or not
-var printDebug=true;
 
 var GameState = require('./gamestate');
 var gameState = new GameState();
@@ -13,10 +12,10 @@ gameState.setupDecks();
 gameState.caseFile.printFile();
 gameState.wholeDeck.printDeck();
 
-exports.io = function(server){
-	server.listen(80);	
+exports.io = function(server,port){
+	server.listen(port);	
 	io = require('socket.io').listen(server);
-	io.set('log level', 1);
+	io.set('log level', 3);
 	return io;
 }
 
@@ -42,18 +41,18 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
 		io.sockets.emit('playerJoinedGame', aPlayer.name);
-		io.sockets.socket(socket.id).emit('availablePieces', gameState.pieces);
+		//io.sockets.socket(socket.id).emit('availablePieces', gameState.pieces);
 		printDebug("Numer of Players: "+ gameState.notReadyPlayers);
 		printDebug(inspect(gameState.players));
 	});
-	socket.on('playerReady', function(playerSessionID) {
-		var player = gameState.players.getPlayerSessionID(playerSessionID);
+	socket.on('playerReady', function(message) {
+		var player = gameState.getPlayerBySessionID(socket.id);
 		io.sockets.emit('playerIsReady', player.name);
 		putsMessage(['playerReady', player.name]); //Prints message to console
 		gameState.readyPlayers++;
 		gameState.notReadyPlayers--;
-		if(gameState.readyPlayers==gameState.readyPlayers){
-			gameState.dealAndChoosePieces();
+		if(gameState.readyPlayers==gameState.readyPlayers && gameState.readyPlayers>=3){
+			gameState.dealAndChoosePieces(io);
 		}
 		//The function shall broadcast to other players that the particular player is ready
 		//The function shall set the player's status to ready in the object that is storing the player's status

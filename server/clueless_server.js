@@ -3,8 +3,8 @@ var assert=require('assert');
 var server=require('./clueless_http_server.js');
 
 var clueless_server = require('./clueless_socket_server.js');
-var io=clueless_server.io(server);
-var socketserver=clueless_server.setupsocketserver(io);
+var io=clueless_server.io(server,80);
+clueless_server.setupsocketserver(io);
 
 
 // cl.get('/',function(res, data){
