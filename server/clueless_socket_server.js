@@ -83,7 +83,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//The function shall set the player's game piece in the object that is storing the player's status
 	});
 	socket.on('playerLocationChosen', function(message) {
-		putsMessage(['playerLocationChosen', message]); //Prints message to console
+		putsMessage(['aPlayerLocationChosen', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has moved to a location
 		//The function shall set the player's location in the object that is storing the player's status
 	});
@@ -98,14 +98,14 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//The function shall send a message to the suggesting player with the shared card data
 	});
 	socket.on('playerAccusation', function(message) {
-		putsMessage(['playerAccusation', message]); //Prints message to console
+		putsMessage(['playerMadeAccusation', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has made a accusation
 		//The function shall store the player's accusation data
 		//The function shall check the player's accusation data against the case file
 		//If the accusation is correct, the function shall broadcast a winner message to all the players and end the game
 		//If the accusation is false, the function shall broadcast a bad accusation message and inactivate the accusing player
 	});
-	socket.on('chatMessage', function(message) {
+	socket.on('playerChatMessage', function(message) {
 		putsMessage(['chatMessage', message]); //Prints message to console
 		//The function shall broadcast the chat message to all the players and spectators
 	});
