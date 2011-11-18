@@ -68,4 +68,11 @@ for(var i = 0; i<3;i++){
 		assert.isNotUndefined(gamestate.players[i].cards[j]);
 	}
 }
+
+// candlestick
+// Colonel Mustard
+// kitchen
+
+var dpInfo = gamestate.getFirstDisprovingPlayer({weapon:'candlestick',room:'kitchen',character:'Colonel Mustard'});
+sys.puts(dpInfo.player.name+ ' '+ inspect(dpInfo.cards));
  

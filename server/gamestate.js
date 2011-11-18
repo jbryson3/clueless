@@ -173,10 +173,12 @@ GameState.prototype.getFirstDisprovingPlayer = function(suggestion){
 	var cards='';
 	var i=0;
 	for(var i=0;i<this.pieces.length;i++){
-		if(this.pieces[i].player != undefined){
-		cards = this.checkCards(this.pieces[i].player.cards,suggestion);
-		if(cards != ''){
-			return {player:this.pieces[i].player, cards:cards};
+		if(this.pieces[i].player.name != undefined){
+			sys.puts(this.pieces[i].player.name);
+			cards = this.getDisprovingCards(this.pieces[i].player.cards,suggestion);
+			if(cards != ''){
+				return ({player:this.pieces[i].player, cards:cards});
+			}
 		}
 	}
 	return '';
@@ -184,8 +186,8 @@ GameState.prototype.getFirstDisprovingPlayer = function(suggestion){
 
 GameState.prototype.getDisprovingCards = function(cards,suggestion){
 	var disprovingCards = new Array;
-	for(var i=0;i<cards.length,i++){
-		if(cards[i].value=suggestion.weapon||cards[i].value=suggestion.room||cards[i].value=suggestion.character){
+	for(var i=0;i<cards.length;i++){
+		if(cards[i].value===suggestion.weapon||cards[i].value===suggestion.room||cards[i].value===suggestion.character){
 			disprovingCards[disprovingCards.length]=cards[i];
 		}
 	}
