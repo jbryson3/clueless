@@ -42,7 +42,7 @@ GameState.prototype.chosePieces = function(io){
 	if (io!=''){
 		io.sockets.emit('alert',this.players[this.currentChoosingPlayer].name + ' is choosing a game piece now');
 		io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('availablePieces',availablePieces);	
-		io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('chosePiece','');	
+		//io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('chosePiece','');	
 	}
 	this.currentChoosingPlayer++;
 }
