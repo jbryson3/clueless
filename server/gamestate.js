@@ -28,7 +28,6 @@ GameState.prototype.getPieceByName = function(name){
 }
 GameState.prototype.getAvailablePieces = function(){
 	var availablePieces = new Array;
-	sys.puts(this.pieces.length);
 	for(var i=0; i<this.pieces.length;i++){
 		if(this.pieces[i].available==true){
 			availablePieces[availablePieces.length]=this.pieces[i];
@@ -174,7 +173,6 @@ GameState.prototype.getFirstDisprovingPlayer = function(suggestion){
 	var i=0;
 	for(var i=0;i<this.pieces.length;i++){
 		if(this.pieces[i].player.name != undefined){
-			sys.puts(this.pieces[i].player.name);
 			cards = this.getDisprovingCards(this.pieces[i].player.cards,suggestion);
 			if(cards != ''){
 				return ({player:this.pieces[i].player, cards:cards});

@@ -74,5 +74,6 @@ for(var i = 0; i<3;i++){
 // kitchen
 
 var dpInfo = gamestate.getFirstDisprovingPlayer({weapon:'candlestick',room:'kitchen',character:'Colonel Mustard'});
-sys.puts(dpInfo.player.name+ ' '+ inspect(dpInfo.cards));
- 
+assert.isNotUndefined(dpInfo);
+assert.notEqual(dpInfo.name,'');
+assert.notEqual(dpInfo.cards.length,0); 
