@@ -75,5 +75,7 @@ assert.notEqual(dpInfo.name,'');
 assert.notEqual(dpInfo.cards.length,0); 
 
 var trueAccusation={weapon:gamestate.caseFile.weaponCard,character:gamestate.caseFile.characterCard,room:gamestate.caseFile.roomCard};
+var falseAccusation={weapon:'',character:gamestate.caseFile.characterCard,room:gamestate.caseFile.roomCard};
 
 assert.equal(gamestate.checkAccusation(trueAccusation),true);
+assert.equal(gamestate.checkAccusation(falseAccusation),false);
