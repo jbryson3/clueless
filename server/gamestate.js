@@ -192,4 +192,12 @@ GameState.prototype.getDisprovingCards = function(cards,suggestion){
 	return disprovingCards;
 }
 
+GameState.prototype.checkAccusation = function(accusation){
+	if(this.caseFile.weaponCard===accusation.weapon && this.caseFile.characterCard===accusation.character &&
+	 this.caseFile.roomCard===accusation.room){
+	 	return true;
+	 }else return false;
+}
+
+
 module.exports = GameState;

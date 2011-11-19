@@ -69,11 +69,11 @@ for(var i = 0; i<3;i++){
 	}
 }
 
-// candlestick
-// Colonel Mustard
-// kitchen
-
 var dpInfo = gamestate.getFirstDisprovingPlayer({weapon:'candlestick',room:'kitchen',character:'Colonel Mustard'});
 assert.isNotUndefined(dpInfo);
 assert.notEqual(dpInfo.name,'');
 assert.notEqual(dpInfo.cards.length,0); 
+
+var trueAccusation={weapon:gamestate.caseFile.weaponCard,character:gamestate.caseFile.characterCard,room:gamestate.caseFile.roomCard};
+
+assert.equal(gamestate.checkAccusation(trueAccusation),true);
