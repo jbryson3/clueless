@@ -1,4 +1,4 @@
-var sys = require("util").sys;
+var util = require("util");
 var inspect = require('util').inspect;
 
 //Controls whether debug messages from this object get printed or not
@@ -20,11 +20,11 @@ exports.io = function(server,port){
 }
 
 function printDebug(message){
-		sys.puts(message);
+		util.puts(message);
 }
 
 function putsMessage(message){
-	sys.puts("Received Message: '"+ message[0] + "' Data: [" + message[1] + "]" );
+	util.puts("Received Message: '"+ message[0] + "' Data: [" + message[1] + "]" );
 }
 
 exports.setupsocketserver = function(io){
@@ -33,7 +33,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 	socket.on('playerJoinGame', function(name) {
 		var Player = require('./player');
 		//Should this function check for 6 players or does the client?
-		putsMessage(['clientPlayerJoinGame', name]); //Prints message to console
+		putsMessage(['playerJoinedGame', name]); //Prints message to console
 		//This function shall add the new player to the global players array
 		aPlayer = new Player();
 		aPlayer.initialize(name,socket.id);
@@ -45,6 +45,31 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		printDebug("Numer of Players: "+ gameState.notReadyPlayers);
 		printDebug(inspect(gameState.players));
 	});
+	socket.on('spectatorJoinGame', function(name) {
+		var Spectator = require('./spectator');
+		//Should this function check for 6 players or does the client?
+		putsMessage(['spectatorJoinedGame', name]); //Prints message to console
+		//This function shall add the new player to the global players array
+		aSpectator = new Spectator();
+		aSpectator.initialize(name,socket.id);
+		gameState.addSpectator(aSpectator);
+		io.sockets.emit('spectatorJoinedGame', aPlayer.name);
+		//io.sockets.socket(socket.id).emit('availablePieces', gameState.pieces);
+	});
+
+	socket.on('checkName', function(name){
+		io.socket.sockets(socket.id).emit('checkedName',gamestate.checkName(name));
+	});
+
+socket.on('getGameStatus', function(name){
+		io.socket.sockets(socket.id).emit('gameStatus',gamestate.status);
+	});
+
+	socket.on('getAllPlayers', function(){
+		io.socket.sockets(socket.id).emit('allPlayers',gamestate.players);
+		io.socket.sockets(socket.id).emit('allSpectator',gamestate.spectators);
+	});
+
 	socket.on('playerReady', function(message) {
 		var player = gameState.getPlayerBySessionID(socket.id);
 		io.sockets.emit('playerIsReady', player.name);
