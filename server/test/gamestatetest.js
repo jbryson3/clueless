@@ -1,14 +1,14 @@
-var sys = require('sys');
+var util = require('util');
 var assert = require("assert-extras");
 var inspect=require('util').inspect;
-var sys = require('sys');
 var Gamestate=require('../gamestate');
 var gamestate = new Gamestate();
 var Player = require('../player');
 var Piece = require('../piece');
 var tempAdjRooms='';
+var Spectator = require('../spectator');
 
-sys.puts("Running gamestate.js unit tests");
+util.puts("Running gamestate.js unit tests");
 
 gamestate.setupPieces();
 assert.equal(gamestate.pieces[0].name,'Miss Scarlet');
@@ -75,6 +75,13 @@ player3=new Player();
 player3.initialize('Kim',125)
 gamestate.addPlayer(player3);
 
+spectator1=new Spectator();
+spectator1.initialize('Dan',127);
+gamestate.addSpectator(spectator1);
+
+assert.equal(gamestate.spectators[0].name,'Dan');
+
+
 assert.equal(gamestate.players.length,3);
 assert.equal(gamestate.players[0].name,'Al');
 assert.equal(gamestate.players[1].name,'Sue');
@@ -83,6 +90,12 @@ assert.equal(gamestate.players[0].sessionID,123);
 assert.equal(gamestate.players[1].sessionID,124);
 assert.equal(gamestate.players[2].sessionID,125);
 assert.isNotUndefined(gamestate.getPlayerBySessionID(123));
+
+
+//Test checkName function
+assert.equal(gamestate.checkName('Al'),true);
+assert.equal(gamestate.checkName('Dan'),false);
+
 
 assert.equal(gamestate.currentChoosingPlayer,0);
 gamestate.chosePieces('');

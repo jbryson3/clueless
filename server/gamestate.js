@@ -1,4 +1,4 @@
-var sys = require('util').sys;
+var util = require('util');
 var inspect = require('util').inspect;
 var CaseFile=require('./casefile');
 var CardDeck=require('./carddeck');
@@ -8,6 +8,7 @@ GameState = function(){
     this.currentPlayer = "";
     this.status = "";
     this.players = new Array();
+    this.spectators = new Array();
     this.notReadyPlayers=0;
     this.readyPlayers=0
     this.totalPlayers=0
@@ -24,6 +25,15 @@ GameState.prototype.checkLocation = function(sessionID, locationName){
 	var currentLocation = this.getPlayerBySessionID(sessionID).piece.location;
 	for(var i = 0; i<currentLocation.adjoiningRooms.length;i++){
 		if(this.board[currentLocation.adjoiningRooms[i]].name===locationName && this.board[currentLocation.adjoiningRooms[i]].currentOccupant===''){
+			return true;
+		}
+	}
+	return false;
+}
+
+GameState.prototype.checkName = function(playerName){
+	for(var i = 0; i< this.players.length;i++){
+		if(this.players[i].name===playerName){
 			return true;
 		}
 	}
@@ -171,6 +181,10 @@ GameState.prototype.getPlayerBySessionID = function(sessionID){
 
 GameState.prototype.addPlayer = function(player){
 	this.players[this.players.length]=player;
+}
+
+GameState.prototype.addSpectator = function(spectator){
+	this.spectators[this.spectators.length]=spectator;
 }
 
 GameState.prototype.getPlayerByName = function(playerName){

@@ -1,4 +1,4 @@
-var sys = require("sys");
+var util = require("util");
 
 Player = function(){
 	this.name='';
@@ -14,11 +14,11 @@ Player.prototype.initialize = function(name,sessionID){
 }
 
 Player.prototype.printCards = function() {
-	sys.puts(this.name + " Cards");
+	util.puts(this.name + " Cards");
 	for(var i=0;i<this.cards.length;i++){
-		sys.puts(this.cards[i].value);
+		util.puts(this.cards[i].value);
 	}
-	sys.puts('');
+	util.puts('');
 };
 
 module.exports=Player;
