@@ -3,6 +3,8 @@ var assert = require("assert-extras");
 var CaseFile=require('../casefile');
 var Card = require('../card');
 
+sys.puts("Running casefile.js unit tests");
+
 var weaponcard = new Card();
 weaponcard.initialize('weapon','lead pipe');
 

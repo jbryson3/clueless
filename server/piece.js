@@ -2,6 +2,7 @@ Piece  = function(){
 	this.name = '';
 	this.player='';
 	this.available='';
+	this.location='';
 }
 
 Piece.prototype.initialize = function(name,available){

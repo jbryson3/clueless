@@ -1,7 +1,8 @@
-var sys = require('sys');
+var sys = require('util').sys;
 var inspect = require('util').inspect;
 var CaseFile=require('./casefile');
 var CardDeck=require('./carddeck');
+var Location=require('./location');
 
 GameState = function(){
     this.currentPlayer = "";
@@ -16,7 +17,88 @@ GameState = function(){
     this.currentChoosingPlayer=0;
     this.wholeDeck=new CardDeck();
     this.caseFile=new CaseFile();
+    this.board=new Array();
 };
+
+GameState.prototype.checkLocation = function(sessionID, locationName){
+	var currentLocation = this.getPlayerBySessionID(sessionID).piece.location;
+	for(var i = 0; i<currentLocation.adjoiningRooms.length;i++){
+		if(this.board[currentLocation.adjoiningRooms[i]].name===locationName && this.board[currentLocation.adjoiningRooms[i]].currentOccupant===''){
+			return true;
+		}
+	}
+	return false;
+}
+
+GameState.prototype.getAvailableLocations = function(player){
+	var currentLocation = player.piece.location;
+	var availableLocations = new Array();
+	for(var i = 0; i<currentLocation.adjoiningRooms.length;i++){
+		if(this.board[currentLocation.adjoiningRooms[i]].currentOccupant===''){
+			availableLocations[availableLocations.length]=this.board[currentLocation.adjoiningRooms[i]];
+		}
+	}
+	return availableLocations;
+
+}
+
+
+GameState.prototype.setupBoard = function(){
+	var theRooms=['kitchen','ballroom','conservatory','dining room','library','billiard room','lounge','hall','study', 'hall_1', 'hall_2','hall_3','hall_4','hall_5','hall_6','hall_7','hall_8','hall_9','hall_10','hall_11','hall_12',];
+
+	for(var i=0; i<theRooms.length;i++){
+		var tempLocation = new Location;
+		tempLocation.name=theRooms[i];
+		this.board[this.board.length]=tempLocation;
+	}
+	this.setAdjacentRooms([0,18,20,8]);
+	this.setAdjacentRooms([18,0,1]);
+	this.setAdjacentRooms([1,18,15,13]);
+	this.setAdjacentRooms([13,2,1]);
+	this.setAdjacentRooms([2,10,6,13]);
+	this.setAdjacentRooms([10,2,4]);
+	this.setAdjacentRooms([15,1,5]);
+	this.setAdjacentRooms([20,0,3]);
+	this.setAdjacentRooms([4,10,12,9]);
+	this.setAdjacentRooms([12,4,5]);
+	this.setAdjacentRooms([5,12,14,15,17]);
+	this.setAdjacentRooms([17,5,3]);
+	this.setAdjacentRooms([3,17,20,19]);
+	this.setAdjacentRooms([19,3,6]);
+	this.setAdjacentRooms([14,5,7]);
+	this.setAdjacentRooms([9,4,8]);
+	this.setAdjacentRooms([8,9,0,11]);
+	this.setAdjacentRooms([11,8,7]);
+	this.setAdjacentRooms([7,11,14,16]);
+	this.setAdjacentRooms([16,7,6]);
+	this.setAdjacentRooms([6,16,2,19]);
+
+	this.board[16].currentOccupant= this.pieces[0];
+	this.pieces[0].location=this.board[16];
+	
+	this.board[19].currentOccupant= this.pieces[1];
+	this.pieces[1].location=this.board[19];
+	
+	this.board[18].currentOccupant= this.pieces[2];
+	this.pieces[2].location=this.board[18];
+	
+	this.board[13].currentOccupant= this.pieces[3];
+	this.pieces[3].location=this.board[13];
+	
+	this.board[10].currentOccupant= this.pieces[4];
+	this.pieces[4].location=this.board[10];
+	
+	this.board[9].currentOccupant= this.pieces[5];
+	this.pieces[5].location=this.board[9];
+
+}
+
+GameState.prototype.setAdjacentRooms = function(adjacentRooms){
+	for(var i = 1;i<adjacentRooms.length;i++){
+		var currentLocation=this.board[adjacentRooms[0]];
+		currentLocation.adjoiningRooms[currentLocation.adjoiningRooms.length]=adjacentRooms[i];
+	}	
+}
 
 GameState.prototype.getPieceByName = function(name){
 		for (var i=0;i<this.pieces.length;i++){
@@ -48,13 +130,15 @@ GameState.prototype.chosePieces = function(io){
 
 
 GameState.prototype.setCurrentPlayer = function(io){
-		for (var i=0;i<this.players.length;i++){
-			if (i==this.turnNumber){
-				this.turnList[i].status='currentPlayer';
-			}else this.turnList[i].status='notCurrentPlayer';
+		for (var i=0;i<this.turnList.length;i++){
+				if (i==this.turnNumber){
+					this.turnList[i].status='currentPlayer';
+				}else this.turnList[i].status='notCurrentPlayer';
 		}
-		io.sockets.emit('startTurn',this.turnList[i]);
-		if(this.turnNumber=this.players.length-1){
+		if(io!=''){
+			io.sockets.emit('startTurn',{player:this.turnList[i].name, availableLocations:this.getAvailableLocations(this.turnList[i])});
+		}
+		if(this.turnNumber===this.players.length-1){
 			this.turnNumber=0;
 		}else this.turnNumber++;
 }
@@ -90,18 +174,46 @@ GameState.prototype.addPlayer = function(player){
 }
 
 GameState.prototype.getPlayerByName = function(playerName){
-	for (player in this.players){
-		if (player.name == playerName){
-			return player.sessionID;
+	for (var i=0;i<this.players.length;i++){
+		if (this.players[i].name == playerName){
+			return this.players[i];
 		}
 	}
 	return null;
 }
 
+GameState.prototype.getCurrentPlayer = function(){
+	for (var i=0;i<this.players.length;i++){
+		if (this.players[i].status == 'currentPlayer'){
+			return this.players[i];
+		}
+	}
+	return null;	
+}
+
+GameState.prototype.getLocationByName = function(locationName){
+	for(var i=0;i<this.board.length;i++){
+		if(this.board[i].name===locationName){
+			return this.board[i];
+		}
+	}
+	return '';
+}
+
+//TODO Need getLocationByName function
+GameState.prototype.setPlayerLocation = function(player, locationName){
+	var location=this.getLocationByName(locationName);
+	player.piece.location.currentOccupant='';
+	player.piece.location=location;
+	location.currentOccupant=player.piece;
+}
+
 GameState.prototype.orderPlayers = function(){
+	var j=0;
 	for(var i=0;i<this.pieces.length;i++){
 		if(this.pieces[i].player!=''){
-			this.turnList[i]=this.pieces[i].player;
+			this.turnList[j]=this.pieces[i].player;
+			j++;
 		}
 	}
 }
@@ -118,7 +230,7 @@ GameState.prototype.setupDecks = function(){
 	charactersDeck.initialize('characters',['Colonel Mustard','Mr. Green','Mrs. Peacock','Miss Scarlet','Mrs. White','Professor Plum']);
 
 	var roomsDeck = new CardDeck();
-	roomsDeck.initialize('rooms',['kitchen','ballroom','conservatory','dining room','library','cellar','lounge','hall','study']);
+	roomsDeck.initialize('rooms',['kitchen','ballroom','conservatory','dining room','library','billiard room','lounge','hall','study']);
 
 	this.caseFile.initialize(weaponsDeck.cards[0].value,charactersDeck.cards[0].value,roomsDeck.cards[0].value);
 
@@ -168,6 +280,11 @@ GameState.prototype.startGame = function(){
 	this.status='playing';
 }
 
+GameState.prototype.nextTurn = function(){
+	this.setCurrentPlayer(io);
+
+}
+
 GameState.prototype.getFirstDisprovingPlayer = function(suggestion){
 	var cards='';
 	var i=0;
@@ -198,6 +315,5 @@ GameState.prototype.checkAccusation = function(accusation){
 	 	return true;
 	 }else return false;
 }
-
 
 module.exports = GameState;

@@ -1,4 +1,4 @@
-var sys = require("sys");
+var sys = require("util").sys;
 var inspect = require('util').inspect;
 
 //Controls whether debug messages from this object get printed or not
@@ -82,27 +82,42 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//The function shall broadcast to the other players that the particular player choose a game piece
 		//The function shall set the player's game piece in the object that is storing the player's status
 	});
-	socket.on('playerLocationChosen', function(message) {
-		putsMessage(['aPlayerLocationChosen', message]); //Prints message to console
+
+	socket.on('playerLocationChosen', function(locationName) {
+		var locationCheck = gameState.checkLocation(socket.id,locationName);
+		if (locationCheck===true){
+			var player=gameState.getPlayerBySessionID(socket.id);
+			gameState.setPlayerLocation(player,locationName);
+			io.socket.emit('aPlayerLocationChosen',nameAndLocation);
+		}else io.socket.sockets(socket.id).emit('badLocation','');
+		putsMessage(['aPlayerLocationChosen', nameAndLocation]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has moved to a location
 		//The function shall set the player's location in the object that is storing the player's status
 	});
+
 	socket.on('playerSuggestion', function(suggestion) {
 		io.socket.emit('playerMadeSuggestion',suggestion)
 		putsMessage(['playerSuggestion', suggestion]); //Prints message to console
 
 		var dpInfo = gameState.getFirstDisprovingPlayer(suggestion);
 		if(dpInfo != ''){
-			io.socket.sockets.(dpInfo.player.sessionID).emit('disproveSuggestion',dpInfo.cards)
+			io.socket.sockets.dpInfo.player.sessionID.emit('disproveSuggestion',dpInfo.cards)
 		}else gameState.nextTurn();
 		//The function shall broadcast to the other players that the particular player has made a suggestion
 		//The function shall store the player's suggestion data
 	});
-	socket.on('playerDisprovedSuggestion', function(message) {
-		putsMessage(['aPlayerDisprovedSuggestion', message]); //Prints message to console
+
+	socket.on('playerDisprovedSuggestion', function(disprovingData) {
+		putsMessage(['aPlayerDisprovedSuggestion', disprovingData]); //Prints message to console
+		io.socket.emit('playerDisprovedSuggestion','');
+		var sessionID = gameState.getCurrentPlayer().sessionID;
+		io.socket.sockets.sessionID.emit('suggestionDisproved',disprovingData)
+		gameState.nextTurn();
 		//The function shall broadcast to the other players that the particular player has shared a card with the suggesting player
 		//The function shall send a message to the suggesting player with the shared card data
 	});
+
+	//TODO flesh out this function
 	socket.on('playerAccusation', function(message) {
 		putsMessage(['playerMadeAccusation', message]); //Prints message to console
 		//The function shall broadcast to the other players that the particular player has made a accusation
@@ -111,11 +126,23 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		//If the accusation is correct, the function shall broadcast a winner message to all the players and end the game
 		//If the accusation is false, the function shall broadcast a bad accusation message and inactivate the accusing player
 	});
+
 	socket.on('playerChatMessage', function(message) {
 		putsMessage(['chatMessage', message]); //Prints message to console
+		io.socket.emit('chatMessage',message);
 		//The function shall broadcast the chat message to all the players and spectators
 	});
 
+	socket.on('playerQuit', function(playerName) {
+		putsMessage(['chatMessage', playerName]); //Prints message to console
+		io.socket.emit('playerQuit',playerName);
+		gameState = new GameState();
+		gameState.setupPieces();
+		gameState.setupDecks();
+		gameState.caseFile.printFile();
+		gameState.wholeDeck.printDeck();
+		//The function shall broadcast the quit message to all the players and spectators and reset the game
+	});
 	
 });
 return exports.socketserver;
