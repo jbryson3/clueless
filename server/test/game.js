@@ -9,6 +9,11 @@ $('#btn1readytoplay').click(function(){
   socket.emit("playerReady", 'Al');
 });
 
+$('#btngetAllPlayers').click(function(){
+  socket.emit("getAllPlayers", '');
+});
+
+
 var writeLog = function (message){
 	$("#textAreaLog").append(message+'\n');
 }
@@ -39,6 +44,11 @@ socket.on('reconnect', function() {
 socket.on('reconnect_failed', function() {
   writeLog('Failed to reconnect');
 });
+
+socket.on('allPlayers', function(data) {
+  writeLog(data[0].name);
+});
+
 
 socket.on('aPlayerChoseGamePiece', function(message) {
   writeLog(message);

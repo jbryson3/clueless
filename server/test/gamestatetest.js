@@ -63,6 +63,7 @@ for(var i = 0; i<gamestate.wholeDeck.cards.length; i++){
 	assert.isNotUndefined(gamestate.wholeDeck.cards[i]);
 }
 
+//Test adding players
 player1=new Player();
 player1.initialize('Al',123)
 gamestate.addPlayer(player1); 
@@ -75,6 +76,8 @@ player3=new Player();
 player3.initialize('Kim',125)
 gamestate.addPlayer(player3);
 
+
+//Test adding a spectator
 spectator1=new Spectator();
 spectator1.initialize('Dan',127);
 gamestate.addSpectator(spectator1);
@@ -149,7 +152,8 @@ assert.equal(gamestate.players[1].status,'currentPlayer');
 assert.equal(gamestate.players[0].status,'notCurrentPlayer');
 assert.equal(gamestate.players[2].status,'notCurrentPlayer');
 assert.equal(gamestate.getCurrentPlayer(),gamestate.players[1]);
-//Ne
+
+//Next player test
 gamestate.setCurrentPlayer('');
 assert.equal(gamestate.players[0].status,'currentPlayer');
 assert.equal(gamestate.players[1].status,'notCurrentPlayer');

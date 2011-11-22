@@ -58,16 +58,16 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('checkName', function(name){
-		io.socket.sockets(socket.id).emit('checkedName',gamestate.checkName(name));
+		io.sockets.sockets[socket.id].emit('checkedName',gameState.checkName(name));
 	});
 
 socket.on('getGameStatus', function(name){
-		io.socket.sockets(socket.id).emit('gameStatus',gamestate.status);
+		io.sockets.sockets[socket.id].emit('gameStatus',gameState.status);
 	});
 
 	socket.on('getAllPlayers', function(){
-		io.socket.sockets(socket.id).emit('allPlayers',gamestate.players);
-		io.socket.sockets(socket.id).emit('allSpectator',gamestate.spectators);
+		io.sockets.sockets[socket.id].emit('allPlayers',gameState.players);
+		io.sockets.sockets[socket.id].emit('allSpectator',gameState.spectators);
 	});
 
 	socket.on('playerReady', function(message) {
@@ -126,7 +126,7 @@ socket.on('getGameStatus', function(name){
 
 		var dpInfo = gameState.getFirstDisprovingPlayer(suggestion);
 		if(dpInfo != ''){
-			io.socket.sockets.dpInfo.player.sessionID.emit('disproveSuggestion',dpInfo.cards)
+			io.sockets.sockets.dpInfo.player.sessionID.emit('disproveSuggestion',dpInfo.cards)
 		}else gameState.nextTurn();
 		//The function shall broadcast to the other players that the particular player has made a suggestion
 		//The function shall store the player's suggestion data
@@ -136,15 +136,17 @@ socket.on('getGameStatus', function(name){
 		putsMessage(['aPlayerDisprovedSuggestion', disprovingData]); //Prints message to console
 		io.socket.emit('playerDisprovedSuggestion','');
 		var sessionID = gameState.getCurrentPlayer().sessionID;
-		io.socket.sockets.sessionID.emit('suggestionDisproved',disprovingData)
+		io.sockets.sockets[sessionID].emit('suggestionDisproved',disprovingData)
 		gameState.nextTurn();
 		//The function shall broadcast to the other players that the particular player has shared a card with the suggesting player
 		//The function shall send a message to the suggesting player with the shared card data
 	});
 
-	//TODO flesh out this function
-	socket.on('playerAccusation', function(message) {
-		putsMessage(['playerMadeAccusation', message]); //Prints message to console
+	socket.on('playerAccusation', function(accusation) {
+		putsMessage(['playerMadeAccusation', accusation]); //Prints message to console
+		if(gamestate.checkAccusation()){
+			io.socket.emit('playerWon',accusation);
+		}else io.socket.emit('playerSuspended',accusation);
 		//The function shall broadcast to the other players that the particular player has made a accusation
 		//The function shall store the player's accusation data
 		//The function shall check the player's accusation data against the case file
