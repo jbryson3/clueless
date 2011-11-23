@@ -2,7 +2,8 @@ var nameCount=0;
 var readyToPlay=0;
 
 $('#joinGame').click(function(){
-  joinGame($('#playerName').val());
+  socket.emit('checkName', $('#playerName').val());
+//  joinGame($('#playerName').val());
 });
 
 $('#btn1readytoplay').click(function(){
@@ -11,6 +12,10 @@ $('#btn1readytoplay').click(function(){
 
 $('#btngetAllPlayers').click(function(){
   socket.emit("getAllPlayers", '');
+});
+
+$('#btngetGameStatus').click(function(){
+  socket.emit("getGameStatus", '');
 });
 
 
@@ -28,6 +33,14 @@ var pieces = new Array();
 var $input, socket;
 
 socket = io.connect();
+
+socket.on('checkedName', function(nameUsed){
+  if(nameUsed==false){
+    writeLog('Named Checked OK');
+    joinGame($('#playerName').val());
+  } else writeLog('Somebody else using that name!');
+
+});
 
 socket.on('connect', function() {
   writeLog("connected");
@@ -66,6 +79,11 @@ socket.on('chosePiece', function(player){
 
 socket.on('alert', function(message){
   writeLog(message);
+});
+
+socket.on('gameStatus', function(message){
+  writeLog(message);
+  $('#txtgetGameStatus').val(message);
 });
 
 

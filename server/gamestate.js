@@ -6,7 +6,7 @@ var Location=require('./location');
 
 GameState = function(){
     this.currentPlayer = "";
-    this.status = "";
+    this.status = "waiting";
     this.players = new Array();
     this.spectators = new Array();
     this.notReadyPlayers=0;
@@ -132,7 +132,7 @@ GameState.prototype.chosePieces = function(io){
 	var availablePieces=this.getAvailablePieces();
 	if (io!=''){
 		io.sockets.emit('alert',this.players[this.currentChoosingPlayer].name + ' is choosing a game piece now');
-		io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('availablePieces',availablePieces);	
+		io.sockets.sockets[this.players[this.currentChoosingPlayer].sessionID].emit('availablePieces',availablePieces);	
 		//io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('chosePiece','');	
 	}
 	this.currentChoosingPlayer++;
@@ -282,7 +282,7 @@ GameState.prototype.dealCards = function(io){
 	if(io!=''){
 		//This loops sends the dealt cards to each player
 		for(var j=0;j<this.players.length;j++){
-			io.sockets.socket(this.players[j].sessionID).emit('dealtCards', this.players[j].cards);	
+			io.sockets.sockets[this.players[j].sessionID].emit('dealtCards', this.players[j].cards);	
 		}
 	}
 		
