@@ -5,6 +5,11 @@ test = require("assert"),
 url = require('url'),
 fs = require('fs'),
 http = require('http');
+path = require('path');
+
+
+// clueless/client becomes new webroot
+__dirname = path.join(__dirname, '../client');
 
 server = http.createServer(function(req, res) {
 	var request = url.parse(req.url, true);

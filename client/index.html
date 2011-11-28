@@ -1,3 +1,5 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 	<script src="assets/jquery-1.7.min.js"></script>
@@ -5,6 +7,8 @@
 	<script src="assets/jquery.layout/jquery.ui.all.js"></script>
 	<script src="assets/jquery.fancybox-1.3.4/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
 	<script src="assets/jquery.fancybox-1.3.4/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="assets/clueless_client.js"></script>
 	<link rel="stylesheet" type="text/css" href="assets/jquery.fancybox-1.3.4/fancybox/jquery.fancybox-1.3.4.css" />
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -195,9 +199,9 @@
 					<h3>Players</h3>
 					<div id="player_list" style="margin-left:10px;">
 						<ul>
-							<li>[Waiting] - John</li>
-							<li>[Ready] - Jill</li>
-							<li>[Ready] - Jacob</li>
+							<li>[Waiting] - Dummy1</li>
+							<li>[Ready] - Dummy2</li>
+							<li>[Ready] - Dummy3</li>
 						</ul>
 					</div>
 					<h3>Spectators</h3>
@@ -235,8 +239,8 @@
 		</div>
 		<div id="chat_bottom" class="ui-layout-south">
 			<div style="background-color:lightGray; height:28px; width:100%; position:absolute; bottom:0px;">
-				<table style="width:100%; font-size:12px;"><tbody style="width:100%">
-				<tr><td style="width:25px;">Say:</td><td><input type="text" style="width:100%"/></td></tr>
+				<table style="width:100%; font-size:12px; margin-top:0px;"><tbody style="width:100%">
+				<tr><td style="width:25px;">Say:</td><td style="padding:0px 10px 0px 0px;"><input type="text" style="width:100%;"/></td></tr>
 				</tbody></table>
 			</div>
 		</div>
