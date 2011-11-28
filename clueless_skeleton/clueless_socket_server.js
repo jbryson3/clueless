@@ -4,7 +4,7 @@ var inspect = require('util').inspect;
 
 
 //Controls whether debug messages from this object get printed or not
-var printDebug=true;
+//var printDebug=true;
 
 var weaponsDeck;
 var charactersDeck;
@@ -252,7 +252,10 @@ function putsMessage(message){
 exports.setupsocketserver = function(io){
 exports.socketserver=io.sockets.on('connection', function(socket) {
 	
-	socket.on('playerJoinGame', function(name) {
+	socket.on('disconnect', function() {
+		printDebug("Client disconnected: "+ socket.id);
+	});
+	socket.on('clientPlayerJoinGame', function(name) {
 		//Should this function check for 6 players or does the client?
 		putsMessage(['clientPlayerJoinGame', name]); //Prints message to console
 		//This function shall add the new player to the global players array
@@ -260,7 +263,7 @@ exports.socketserver=io.sockets.on('connection', function(socket) {
 		gameState.notReadyPlayers+=1;
 		gameState.totalPlayers+=1;
 		gameState.addPlayer(aPlayer);
-		io.sockets.emit('playerJoinedGame', aPlayer.name);
+		io.sockets.emit('bdcstPlayerJoinedGame', aPlayer.name);
 		io.sockets.socket(socket.id).emit('availablePieces', gameState.pieces);
 		printDebug("Numer of Players: "+ gameState.notReadyPlayers);
 		printDebug(inspect(gameState.players));
