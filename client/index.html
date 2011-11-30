@@ -99,33 +99,13 @@
 				north__size: "20"
 			});
 			
-			
-			//gameBoard_container
-			//status_container
-				/*for(var i=0; i<20; i++){
-					appendStatus("Sample log message. Sample log message.  Woot and woot.<br/>");
-				}*/
-				function appendStatus(message){
-					var status = $('#status').html();
-					status += message;
-					$('#status').html(status).attr('scrollTop', document.getElementById('status').scrollHeight);
-					
-				}
-			//detectivePad_container
-			//people_container
-			//actions_container
-			//cards_container
-			//chat_container
-			
 			$('#modal_welcome').fancybox({
 				'hideOnOverlayClick' : false,
 				'enableEscapeButton' : false,
 				'showCloseButton' : false
 			}).click();
 			
-			$('#btn_spectate').click(function(){
-				$.fancybox.close();
-			});
+			
 		});
 	</script>
 </head>
@@ -199,17 +179,17 @@
 					<h3>Players</h3>
 					<div id="player_list" style="margin-left:10px;">
 						<ul>
-							<li>[Waiting] - Dummy1</li>
+							<!--<li>[Waiting] - Dummy1</li>
 							<li>[Ready] - Dummy2</li>
-							<li>[Ready] - Dummy3</li>
+							<li>[Ready] - Dummy3</li>-->
 						</ul>
 					</div>
 					<h3>Spectators</h3>
 					<div id="spectator_list" style="margin-left:10px;">
 						<ul>
-							<li>Abe</li>
+							<!--<li>Abe</li>
 							<li>Britta</li>
-							<li>Carly</li>
+							<li>Carly</li>-->
 						</ul>
 					</div>
 				</div>
@@ -240,7 +220,7 @@
 		<div id="chat_bottom" class="ui-layout-south">
 			<div style="background-color:lightGray; height:28px; width:100%; position:absolute; bottom:0px;">
 				<table style="width:100%; font-size:12px; margin-top:0px;"><tbody style="width:100%">
-				<tr><td style="width:25px;">Say:</td><td style="padding:0px 10px 0px 0px;"><input type="text" style="width:100%;"/></td></tr>
+				<tr><td style="width:25px;">Say:</td><td style="padding:0px 10px 0px 0px;"><input id="chatText" type="text" style="width:100%;"/></td></tr>
 				</tbody></table>
 			</div>
 		</div>
@@ -253,8 +233,9 @@
 	<div id="modal_welcome_content" style="border:1px solid black; padding:10px;">
 		<h1>Welcome to Clueless!</h1>
 		<div style="text-align:right; margin:auto; display:table;">
-			<span class="inputLabel" style="">First Name:</span><input type="text" /><br />
-			<input id="btn_play" type="button" value="Play" disabled="true" style="margin-top:5px;" />
+			<div id="login_message" style="text-align:center; color:red; display:none;">Cannot log in!</div>
+			<span class="inputLabel" style="">First Name:</span><input type="text" id="input_playerName" /><br />
+			<input id="btn_play" type="button" value="Play" style="margin-top:5px;" />
 			<input id="btn_spectate" type="button" value="Spectate" style="margin-top:5px;" />
 		</div>
 	</div>
