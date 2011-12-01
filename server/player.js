@@ -6,11 +6,14 @@ Player = function(){
 	this.cards=[];
 	this.piece='';
 	this.status='';
+	this.type='';
+	this.ready=false;
 };
 
-Player.prototype.initialize = function(name,sessionID){
+Player.prototype.initialize = function(name,sessionID,type){
 	this.name=name;
 	this.sessionID=sessionID;	
+	this.type=type;	
 }
 
 Player.prototype.printCards = function() {

@@ -52,6 +52,37 @@ GameState.prototype.getAvailableLocations = function(player){
 
 }
 
+GameState.prototype.removePlayerBySessionID = function(sessionID){
+	var foundAt = -1;
+	for (var i=0; i<this.players.length; i++){
+		var spectator = this.players[i];
+		if (spectator.sessionID == sessionID){
+			foundAt = i;
+		}
+	}
+	if(foundAt < 0){
+		return false;
+	}else{
+		var specList = new Array();
+		for(var i=0; i<this.players.length; i++){
+			if(foundAt != i){
+				specList[specList.length] = this.players[i];
+			}
+		}
+		if(this.players[foundAt].type == 'player'){
+			this.totalPlayers--;
+		
+			if(this.players[foundAt].ready){
+				this.readyPlayers--;
+			}else{
+				this.notReadyPlayers--;
+			}
+		}
+		this.players = specList;
+		//util.puts("Total Players: " + inspect(this.totalPlayers));
+		return true;			
+	}
+}
 
 GameState.prototype.setupBoard = function(){
 	var theRooms=['kitchen','ballroom','conservatory','dining room','library','billiard room','lounge','hall','study', 'hall_1', 'hall_2','hall_3','hall_4','hall_5','hall_6','hall_7','hall_8','hall_9','hall_10','hall_11','hall_12',];
@@ -173,6 +204,11 @@ GameState.prototype.getPlayerBySessionID = function(sessionID){
 	for (var i=0;i<this.players.length;i++){
 		if (this.players[i].sessionID == sessionID){
 			return this.players[i];
+		}
+	}
+	for (var i=0;i<this.spectators.length;i++){
+		if (this.spectators[i].sessionID == sessionID){
+			return this.spectators[i];
 		}
 	}
 	return null;

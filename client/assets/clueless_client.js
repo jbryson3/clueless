@@ -9,9 +9,9 @@ $(document).ready(function(){
 		$('#login_message').hide();
 		var name = $('#input_playerName').val();
 		if(name){
-			socket.emit("checkAvailableName", name, function(data){
-				if(data == "true"){
-					socket.emit("spectatorJoin", name);
+			socket.emit("checkName", name, function(data){
+				if(!data){
+					socket.emit("spectatorJoinGame", name);
 					myName = name;
 					$.fancybox.close();
 				}else{
@@ -27,11 +27,13 @@ $(document).ready(function(){
 		$('#login_message').hide();
 		var name = $('#input_playerName').val();
 		if(name){
-			socket.emit("checkAvailableName", name, function(data){
-				if(data == "true"){
-					socket.emit("clientPlayerJoinGame", name);
+			socket.emit("checkName", name, function(data){
+				if(!data){
+					socket.emit("playerJoinGame", name);
 					myName = name;
 					$.fancybox.close();
+					
+					$('#btn_actions_ready').show();
 				}else{
 					$('#login_message').html('Name in use. Pick another one please.').show();
 				}
@@ -41,6 +43,11 @@ $(document).ready(function(){
 		}
 	});	
 	
+	$('#btn_actions_ready').click(function(){
+		socket.emit('playerReady');
+		$('#btn_actions_ready').hide();
+	});
+	
 	var allowSendMessage = true;
 	$('#chatText').keypress(function(evt){
 		if(evt.which == 13){
@@ -48,7 +55,7 @@ $(document).ready(function(){
 			if(msg && allowSendMessage){
 				$(this).val('');
 				appendChat( msg, myName );
-				socket.emit("chatMessage", msg);
+				socket.emit("playerChatMessage", msg);
 				allowSendMessage = false;
 				setTimeout(function(){
 					allowSendMessage = true;
@@ -56,20 +63,20 @@ $(document).ready(function(){
 			}
 		}
 	});
-	
-
-
 
 	// Socket IO stuff
 	var socket;
 	socket = io.connect();
 	socket.on('connect', function() {
 	  appendStatus('Connected');
-	  socket.emit("getPlayers", function(playerArray){
-		players = playerArray;
+	  socket.emit("getPlayers", function(state){
+		$('#players_ready').html(state.readyPlayers);
+		$('#total_players').html(state.totalPlayers);
+		players = state.players;
 		for(var i=0; i<players.length; i++){
 			if(players[i].type == 'player'){
-				$('#player_list ul').append('<li name="'+players[i].name+'">'+players[i].name+'</li>');
+				var color = players[i].ready ? 'green' : 'auto';
+				$('#player_list ul').append('<li style="color:'+ color +';" name="'+players[i].name+'">'+players[i].name+'</li>');
 			}else{
 				$('#spectator_list ul').append('<li name="'+players[i].name+'">'+players[i].name+'</li>');
 			}
@@ -91,7 +98,7 @@ $(document).ready(function(){
 
 	socket.on("toomanyplayers", function(message){
 	  appendStatus("Too Many Players!");	
-	})
+	});
 
 	socket.on('updateplayers', function(message) {
 		var playerArray = jQuery.makeArray(message);
@@ -102,16 +109,19 @@ $(document).ready(function(){
 		return;
 	});
 
-	socket.on('bdcstPlayerJoinedGame', function(player){
+	socket.on('playerJoinedGame', function(player){
 		appendStatus(player.name + " joined game");
 		if(player.type == 'player'){
 			$('#player_list ul').append('<li name="'+player.name+'">'+player.name+'</li>');
+			$('#total_players').html( parseInt($('#total_players').html())+1 );
 		}else{
+			//player.type == spectator
 			$('#spectator_list ul').append('<li name="'+player.name+'">'+player.name+'</li>');
 		}
 	});
 
-	socket.on('bdcstPlayerLeftGame', function(player){
+
+	socket.on('playerLeftGame', function(player, ready, total){
 		appendStatus(player.name + " left game");
 		if(player.type == 'player'){
 			$('#player_list ul li').each(function(){
@@ -127,6 +137,8 @@ $(document).ready(function(){
 				}
 			});
 		}
+		$('#players_ready').html(ready);
+		$('#total_players').html(total);
 	});
 
 	$("#joinGame").click(function() {
@@ -135,6 +147,18 @@ $(document).ready(function(){
 	
 	socket.on('bdcstChat', function(message, player){
 		appendChat(message, player.name);
+	});
+	
+	socket.on('playerIsReady', function(name){
+		appendStatus(name + " is ready!");
+		$('#players_ready').html( parseInt($('#players_ready').html())+1 );
+		
+		//Coloring the ready player green
+		$('#player_list ul li').each(function(){
+			if( $(this).attr('name') == name ){
+				$(this).css('color','green');
+			}
+		});
 	});
 
 	//Functions

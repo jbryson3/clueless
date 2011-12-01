@@ -115,7 +115,12 @@
 		<div id="gameBoard_header" class="ui-layout-north">
 			<div class="container_header">Game Board</div>
 		</div>
-		<div id="gameBoard" class="ui-layout-center"></div>
+		<div id="gameBoard" class="ui-layout-center">
+			<div style="width:100%; text-align:center; position:absolute; top:50%;">
+				<span>Waiting for 3 players to be ready</span><br/>
+				<span>Ready: <span id="players_ready"></span>/<span id="total_players"></span></span>
+			</div>
+		</div>
 	</div>
 	<div id="status_container" class="ui-layout-south">
 		
@@ -199,7 +204,12 @@
 					<div id="actions_header" class="ui-layout-north">
 						<div class="container_header">Actions</div>
 					</div>
-					<div id="actions" class="ui-layout-center"></div>
+					<div id="actions" class="ui-layout-center">
+						<div id="btn_actions_ready" style="text-align:center; display:none;"><input type="button" value="Ready!" /></div>
+						<div id="btn_actions_suggestion" style="text-align:center; display:none;"><input type="button" value="Make a Suggestion" /></div>
+						<div id="btn_actions_accusation" style="text-align:center; display:none;"><input type="button" value="Make an Accusation" /></div>
+						<div id="btn_actions_endTurn" style="text-align:center; display:none;"><input type="button" value="End Turn" /></div>
+					</div>
 				</div>
 				<div id="cards_container" class="ui-layout-east">
 					<div id="cards_header" class="ui-layout-north">
@@ -297,6 +307,10 @@
 	table td:last-child{
 		padding-left:10px;
 		text-align:left;
+	}
+	
+	input{
+		font-size:12px;
 	}
 	
 </style>

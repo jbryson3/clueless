@@ -15,7 +15,7 @@ gameState.wholeDeck.printDeck();
 exports.io = function(server,port){
 	server.listen(port);	
 	io = require('socket.io').listen(server);
-	io.set('log level', 3);
+	io.set('log level', 1);
 	return io;
 }
 
@@ -33,38 +33,47 @@ exports.setupsocketserver = function(io){
 	exports.socketserver=io.sockets.on('connection', function(socket) {
 		
 		socket.on('disconnect',function(){
-			printDebug(inspect(socket));
+			//printDebug(inspect(socket));
+			var person = gameState.getPlayerBySessionID(socket.id);
+			if(person){
+				gameState.removePlayerBySessionID(socket.id);
+				printDebug("Player disconnected and removed: "+ person.name);
+				io.sockets.emit('playerLeftGame', person, gameState.readyPlayers, gameState.totalPlayers);
+			}
 		});
-
+		socket.on('getPlayers', function(fn) {
+			fn(gameState);
+		});
 		socket.on('playerJoinGame', function(name) {
 			var Player = require('./player');
 			//Should this function check for 6 players or does the client?
 			putsMessage(['playerJoinedGame', name]); //Prints message to console
 			//This function shall add the new player to the global players array
 			aPlayer = new Player();
-			aPlayer.initialize(name,socket.id);
+			aPlayer.initialize(name,socket.id,'player');
 			gameState.notReadyPlayers+=1;
 			gameState.totalPlayers+=1;
 			gameState.addPlayer(aPlayer);
-			io.sockets.emit('playerJoinedGame', aPlayer.name);
+			io.sockets.emit('playerJoinedGame', aPlayer);
 			//io.sockets.socket(socket.id).emit('availablePieces', gameState.pieces);
-			printDebug("Numer of Players: "+ gameState.notReadyPlayers);
-			printDebug(inspect(gameState.players));
+			//printDebug(inspect(gameState.players));
 		});
 		socket.on('spectatorJoinGame', function(name) {
-			var Spectator = require('./spectator');
+			var Player = require('./player');
+			//var Spectator = require('./spectator');
 			//Should this function check for 6 players or does the client?
 			putsMessage(['spectatorJoinedGame', name]); //Prints message to console
 			//This function shall add the new player to the global players array
-			aSpectator = new Spectator();
-			aSpectator.initialize(name,socket.id);
-			gameState.addSpectator(aSpectator);
-			io.sockets.emit('spectatorJoinedGame', aPlayer.name);
+			aSpectator = new Player();
+			aSpectator.initialize(name,socket.id,'spectator');
+			gameState.addPlayer(aSpectator);
+			io.sockets.emit('playerJoinedGame', aSpectator);
 			//io.sockets.socket(socket.id).emit('availablePieces', gameState.pieces);
 		});
 
-		socket.on('checkName', function(name){
-			io.sockets.sockets[socket.id].emit('checkedName',gameState.checkName(name));
+		socket.on('checkName', function(name, fn){
+			//io.sockets.sockets[socket.id].emit('checkedName',gameState.checkName(name));
+			fn(gameState.checkName(name));
 		});
 
 		socket.on('getGameStatus', function(name){
@@ -76,13 +85,14 @@ exports.setupsocketserver = function(io){
 			io.sockets.sockets[socket.id].emit('allSpectator',gameState.spectators);
 		});
 
-		socket.on('playerReady', function(message) {
+		socket.on('playerReady', function() {
 			var player = gameState.getPlayerBySessionID(socket.id);
 			io.sockets.emit('playerIsReady', player.name);
 			putsMessage(['playerReady', player.name]); //Prints message to console
+			player.ready = true;
 			gameState.readyPlayers++;
 			gameState.notReadyPlayers--;
-			if(gameState.readyPlayers==gameState.readyPlayers && gameState.readyPlayers>=3){
+			if(gameState.readyPlayers==gameState.totalPlayers && gameState.readyPlayers>=3){
 				gameState.dealAndChoosePieces(io);
 			}
 			//The function shall broadcast to other players that the particular player is ready
@@ -161,9 +171,11 @@ exports.setupsocketserver = function(io){
 		});
 
 		socket.on('playerChatMessage', function(message) {
-			putsMessage(['chatMessage', message]); //Prints message to console
-			io.socket.emit('chatMessage',message);
+			//putsMessage(['chatMessage', message]); //Prints message to console
+			//io.socket.emit('chatMessage',message);
 			//The function shall broadcast the chat message to all the players and spectators
+			var player = gameState.getPlayerBySessionID(socket.id);
+			socket.broadcast.emit('bdcstChat', message, player);
 		});
 
 		socket.on('playerQuit', function(playerName) {
