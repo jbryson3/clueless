@@ -10,8 +10,8 @@ GameState = function(){
     this.players = new Array();
     this.spectators = new Array();
     this.notReadyPlayers=0;
-    this.readyPlayers=0
-    this.totalPlayers=0
+    this.readyPlayers=0;
+    this.totalPlayers=0;
     this.pieces = new Array();
     this.turnList = new Array();
     this.turnNumber=0;
@@ -20,6 +20,27 @@ GameState = function(){
     this.caseFile=new CaseFile();
     this.board=new Array();
 };
+
+GameState.prototype.reset = function(){
+	this.currentPlayer = "";
+    this.status = "waiting";
+    this.pieces = new Array();
+	this.readyPlayers=0;
+    this.turnList = new Array();
+    this.turnNumber=0;
+    this.currentChoosingPlayer=0;
+    this.wholeDeck=new CardDeck();
+    this.caseFile=new CaseFile();
+    this.board=new Array();
+	
+	for(var i=0; i<this.players.length; i++){
+		this.players[i].cards=[];
+		this.players[i].piece='';
+		this.players[i].status='';
+		this.players[i].ready=false;
+	}
+	
+}
 
 GameState.prototype.checkLocation = function(sessionID, locationName){
 	var currentLocation = this.getPlayerBySessionID(sessionID).piece.location;

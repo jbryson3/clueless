@@ -3,6 +3,7 @@ $(document).ready(function(){
 	//Variables
 	var players = new Array();
 	var myName = '';
+	var type = '';
 	
 	//Setting up events
 	$('#btn_spectate').click(function(){
@@ -13,6 +14,7 @@ $(document).ready(function(){
 				if(!data){
 					socket.emit("spectatorJoinGame", name);
 					myName = name;
+					type = 'spectator';
 					$.fancybox.close();
 				}else{
 					$('#login_message').html('Name in use. Pick another one please.').show();
@@ -31,6 +33,7 @@ $(document).ready(function(){
 				if(!data){
 					socket.emit("playerJoinGame", name);
 					myName = name;
+					type='player';
 					$.fancybox.close();
 					
 					$('#btn_actions_ready').show();
@@ -64,6 +67,10 @@ $(document).ready(function(){
 		}
 	});
 
+	$("#joinGame").click(function() {
+	  socket.emit("clientPlayerJoinGame", $input.val());
+	});
+	
 	// Socket IO stuff
 	var socket;
 	socket = io.connect();
@@ -98,6 +105,43 @@ $(document).ready(function(){
 
 	socket.on("toomanyplayers", function(message){
 	  appendStatus("Too Many Players!");	
+	});
+	
+	socket.on("prematureEndGame", function(){
+		appendStatus("The game has ended prematurely.");
+		//Close any open modal windows
+		$.fancybox.close();
+		
+		//Tell the client what happened (must wait 1 sec until opening another 
+		//modal screen after closing for some reason or they both close)
+		setTimeout(function(){
+			$('#modal_alert_content').html("<div>Sorry, a player disconnected and the game has ended!</div><input type='button' onClick='$.fancybox.close();' value='Ok'/>");
+			$('#modal_alert').fancybox({
+				'hideOnOverlayClick' : false,
+				'enableEscapeButton' : false,
+				'showCloseButton' : false
+			}).click();
+		},1000);
+		
+		//Coloring all players black
+		$('#player_list ul li').each(function(){
+			$(this).css('color','black');
+		});
+		
+		if(type=='player'){
+			$('#btn_actions_ready').show();
+		}
+	});
+	
+	socket.on("startGame", function(){
+		appendStatus("The game has started.");
+		$.fancybox.close();
+		$('#modal_alert_content').html("<div>The game has begun!</div><input type='button' onClick='$.fancybox.close();' value='Ok'/>");
+		$('#modal_alert').fancybox({
+			'hideOnOverlayClick' : false,
+			'enableEscapeButton' : false,
+			'showCloseButton' : false
+		}).click();
 	});
 
 	socket.on('updateplayers', function(message) {
@@ -141,9 +185,6 @@ $(document).ready(function(){
 		$('#total_players').html(total);
 	});
 
-	$("#joinGame").click(function() {
-	  socket.emit("clientPlayerJoinGame", $input.val());
-	});
 	
 	socket.on('bdcstChat', function(message, player){
 		appendChat(message, player.name);
