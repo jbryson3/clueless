@@ -36,6 +36,13 @@ exports.setupsocketserver = function(io){
 			//printDebug(inspect(socket));
 			var person = gameState.getPlayerBySessionID(socket.id);
 			if(person){
+				
+				if(person.type == 'player' && gameState.status == 'playing'){
+					// A player left during the game. End the game and reset.
+					gameState.reset();
+					io.sockets.emit('prematureEndGame');
+				}
+				
 				gameState.removePlayerBySessionID(socket.id);
 				printDebug("Player disconnected and removed: "+ person.name);
 				io.sockets.emit('playerLeftGame', person, gameState.readyPlayers, gameState.totalPlayers);
@@ -92,7 +99,10 @@ exports.setupsocketserver = function(io){
 			player.ready = true;
 			gameState.readyPlayers++;
 			gameState.notReadyPlayers--;
-			if(gameState.readyPlayers==gameState.totalPlayers && gameState.readyPlayers>=3){
+			if(gameState.readyPlayers==gameState.totalPlayers && gameState.readyPlayers>=2){
+				putsMessage(['Gamestart', 'Game is started!']);
+				gameState.status='playing';
+				io.sockets.emit('startGame');
 				gameState.dealAndChoosePieces(io);
 			}
 			//The function shall broadcast to other players that the particular player is ready
