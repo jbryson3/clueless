@@ -102,7 +102,7 @@ exports.setupsocketserver = function(io){
 			if(gameState.readyPlayers==gameState.totalPlayers && gameState.readyPlayers>=2){
 				putsMessage(['Gamestart', 'Game is started!']);
 				gameState.status='playing';
-				io.sockets.emit('startGame');
+				io.sockets.emit('alert', 'All players are ready. Wait for players to choose pieces.');
 				gameState.dealAndChoosePieces(io);
 			}
 			//The function shall broadcast to other players that the particular player is ready
@@ -114,11 +114,12 @@ exports.setupsocketserver = function(io){
 		socket.on('playerChoseGamePiece', function(message) {
 			thePlayer = gameState.getPlayerBySessionID(socket.id);
 			thePiece = gameState.getPieceByName(message);
+
 			thePlayer.piece=thePiece;
 			thePiece.player=thePlayer;
 			thePiece.available = false;
 			theMessage = thePlayer.name + ' chose ' + message;
-			io.sockets.emit('aPlayerChoseGamePiece', theMessage); //Prints message to console
+			io.sockets.emit('alert', theMessage); //Prints message to console
 			
 			/*
 			So to get this working for players to choose pieces, we first kick this off above in the startGame function
@@ -127,9 +128,9 @@ exports.setupsocketserver = function(io){
 			once they have choosen, then this function is called, the piece gets stored and removed from the available list
 			then we call the next player until all players have choosen.		
 			*/
-			if (currentChoosingPlayer<gameState.players.length){
-				chosePieces(io);
-			}else startGame();
+			if (gameState.currentChoosingPlayer<gameState.playersInGame.length){
+				gameState.chosePieces(io);
+			}else gameState.startGame();
 			//The function shall broadcast to the other players that the particular player choose a game piece
 			//The function shall set the player's game piece in the object that is storing the player's status
 		});

@@ -8,7 +8,7 @@ GameState = function(){
     this.currentPlayer = "";
     this.status = "waiting";
     this.players = new Array();
-    this.spectators = new Array();
+    this.playersInGame = new Array();
     this.notReadyPlayers=0;
     this.readyPlayers=0;
     this.totalPlayers=0;
@@ -32,6 +32,7 @@ GameState.prototype.reset = function(){
     this.wholeDeck=new CardDeck();
     this.caseFile=new CaseFile();
     this.board=new Array();
+    this.playersInGame=new Array();
 	
 	for(var i=0; i<this.players.length; i++){
 		this.players[i].cards=[];
@@ -40,6 +41,10 @@ GameState.prototype.reset = function(){
 		this.players[i].ready=false;
 	}
 	
+	this.setupPieces();
+	this.setupDecks();
+	this.caseFile.printFile();
+	this.wholeDeck.printDeck();
 }
 
 GameState.prototype.checkLocation = function(sessionID, locationName){
@@ -135,24 +140,59 @@ GameState.prototype.setupBoard = function(){
 	this.setAdjacentRooms([16,7,6]);
 	this.setAdjacentRooms([6,16,2,19]);
 
-	this.board[16].currentOccupant= this.pieces[0];
-	this.pieces[0].location=this.board[16];
+	var pieceFlags = [false, false, false, false, false, false];
+	for(var i=0; i<this.turnList.length; i++){
+		switch(this.turnList[i].piece.name){
+			case 'Miss Scarlet':
+				pieceFlags[0] = true;
+				break;
+			case 'Colonel Mustard':
+				pieceFlags[1] = true;
+				break;
+			case 'Mrs. White':
+				pieceFlags[2] = true;
+				break;
+			case 'Mr. Green':
+				pieceFlags[3] = true;
+				break;
+			case 'Mrs. Peacock':
+				pieceFlags[4] = true;
+				break;
+			case 'Professor Plum':
+				pieceFlags[5] = true;
+				break;
+		}
+	}
 	
-	this.board[19].currentOccupant= this.pieces[1];
-	this.pieces[1].location=this.board[19];
+	if(pieceFlags[0]){
+		this.board[16].currentOccupant= this.pieces[0];
+		this.pieces[0].location=this.board[16];
+	}
 	
-	this.board[18].currentOccupant= this.pieces[2];
-	this.pieces[2].location=this.board[18];
+	if(pieceFlags[1]){
+		this.board[19].currentOccupant= this.pieces[1];
+		this.pieces[1].location=this.board[19];
+	}
 	
-	this.board[13].currentOccupant= this.pieces[3];
-	this.pieces[3].location=this.board[13];
+	if(pieceFlags[2]){
+		this.board[18].currentOccupant= this.pieces[2];
+		this.pieces[2].location=this.board[18];
+	}
 	
-	this.board[10].currentOccupant= this.pieces[4];
-	this.pieces[4].location=this.board[10];
+	if(pieceFlags[3]){
+		this.board[13].currentOccupant= this.pieces[3];
+		this.pieces[3].location=this.board[13];
+	}
 	
-	this.board[9].currentOccupant= this.pieces[5];
-	this.pieces[5].location=this.board[9];
-
+	if(pieceFlags[4]){
+		this.board[10].currentOccupant= this.pieces[4];
+		this.pieces[4].location=this.board[10];
+	}
+	
+	if(pieceFlags[5]){
+		this.board[9].currentOccupant= this.pieces[5];
+		this.pieces[5].location=this.board[9];
+	}
 }
 
 GameState.prototype.setAdjacentRooms = function(adjacentRooms){
@@ -182,9 +222,10 @@ GameState.prototype.getAvailablePieces = function(){
 
 GameState.prototype.chosePieces = function(io){
 	var availablePieces=this.getAvailablePieces();
+	
 	if (io!=''){
-		io.sockets.emit('alert',this.players[this.currentChoosingPlayer].name + ' is choosing a game piece now');
-		io.sockets.sockets[this.players[this.currentChoosingPlayer].sessionID].emit('availablePieces',availablePieces);	
+		io.sockets.emit('alert',this.playersInGame[this.currentChoosingPlayer].name + ' is choosing a game piece now');
+		io.sockets.sockets[this.playersInGame[this.currentChoosingPlayer].sessionID].emit('availablePieces',availablePieces);	
 		//io.sockets.socket(this.players[this.currentChoosingPlayer].sessionID).emit('chosePiece','');	
 	}
 	this.currentChoosingPlayer++;
@@ -198,7 +239,8 @@ GameState.prototype.setCurrentPlayer = function(io){
 				}else this.turnList[i].status='notCurrentPlayer';
 		}
 		if(io!=''){
-			io.sockets.emit('startTurn',{player:this.turnList[i].name, availableLocations:this.getAvailableLocations(this.turnList[i])});
+			io.sockets.sockets[this.turnList[this.turnNumber].sessionID].emit('startTurn',this.getAvailableLocations(this.turnList[this.turnNumber]));
+			io.sockets.emit('alert', 'It\'ts '+this.turnList[this.turnNumber].name+'\'s turn.');
 		}
 		if(this.turnNumber===this.players.length-1){
 			this.turnNumber=0;
@@ -225,11 +267,6 @@ GameState.prototype.getPlayerBySessionID = function(sessionID){
 	for (var i=0;i<this.players.length;i++){
 		if (this.players[i].sessionID == sessionID){
 			return this.players[i];
-		}
-	}
-	for (var i=0;i<this.spectators.length;i++){
-		if (this.spectators[i].sessionID == sessionID){
-			return this.spectators[i];
 		}
 	}
 	return null;
@@ -327,26 +364,37 @@ GameState.prototype.dealAndChoosePieces = function(io){
 
 //This function deals cards to the players in the players array. Send in the wholeDeck.cards
 GameState.prototype.dealCards = function(io){
+	var actualPlayers = new Array();
+	for(var i=0; i<this.players.length; i++){
+		if(this.players[i].type == 'player'){
+			actualPlayers.push(this.players[i]);
+		}
+	}
+	this.playersInGame = actualPlayers;
+	
 	var i=0;
 	while(i<this.wholeDeck.cards.length){
-		for(var j=0;j<this.players.length;j++){
+		for(var j=0;j<this.playersInGame.length;j++){
 			if (i<this.wholeDeck.cards.length){
-				this.players[j].cards[this.players[j].cards.length]=this.wholeDeck.cards[i];
+				this.playersInGame[j].cards[this.playersInGame[j].cards.length]=this.wholeDeck.cards[i];
 				i++;
 			}else break;
 		}
 	}
 	if(io!=''){
 		//This loops sends the dealt cards to each player
-		for(var j=0;j<this.players.length;j++){
-			io.sockets.sockets[this.players[j].sessionID].emit('dealtCards', this.players[j].cards);	
+		for(var j=0;j<this.playersInGame.length;j++){
+			io.sockets.sockets[this.playersInGame[j].sessionID].emit('dealtCards', this.playersInGame[j].cards);
+			util.puts("cards" + inspect(this.playersInGame[j].cards));
 		}
 	}
 		
 }
 
 GameState.prototype.startGame = function(){
+	io.sockets.emit('alert', 'All pieces have been chosen. Let the game begin!');
 	this.orderPlayers();
+	this.setupBoard();
 	this.setCurrentPlayer(io);
 	this.status='playing';
 }

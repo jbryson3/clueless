@@ -131,17 +131,19 @@ $(document).ready(function(){
 		if(type=='player'){
 			$('#btn_actions_ready').show();
 		}
+		
+		$('#cards').html('');
 	});
 	
 	socket.on("startGame", function(){
-		appendStatus("The game has started.");
+		/*appendStatus(".");
 		$.fancybox.close();
-		$('#modal_alert_content').html("<div>The game has begun!</div><input type='button' onClick='$.fancybox.close();' value='Ok'/>");
+		$('#modal_alert_content').html("<div>The game has begun!</div><div>Please wait while we pick pieces.</div>");
 		$('#modal_alert').fancybox({
 			'hideOnOverlayClick' : false,
 			'enableEscapeButton' : false,
 			'showCloseButton' : false
-		}).click();
+		}).click();*/
 	});
 
 	socket.on('updateplayers', function(message) {
@@ -185,9 +187,58 @@ $(document).ready(function(){
 		$('#total_players').html(total);
 	});
 
+	socket.on('startTurn', function(player, locations){
+		appendStatus("start turn: " + player);
+	});
 	
 	socket.on('bdcstChat', function(message, player){
 		appendChat(message, player.name);
+	});
+	
+	socket.on('alert', function(message){
+		appendStatus(message);
+	});
+	
+	socket.on('availablePieces', function(availablePieces){
+		
+		var content = '';
+		for(var i=0; i<availablePieces.length; i++){
+			content += availablePieces[i].available ? '<input type="radio" name="choose_pieces" class="choose_pieces" /><span>' + availablePieces[i].name + '</span><br />' : '<input type="radio" disabled="disabled"><span>' + availablePieces[i].name + '</span><br />';
+		}
+		content += "<input id='btn_choosePiece' type='button' value='Choose Piece' />";
+		
+		$.fancybox.close();
+		//Tell the client what happened (must wait 1 sec until opening another 
+		//modal screen after closing for some reason or they both close)
+		setTimeout(function(){
+			$('#modal_alert_content').html(content);
+			$('#modal_alert').fancybox({
+				'hideOnOverlayClick' : false,
+				'enableEscapeButton' : false,
+				'showCloseButton' : false
+			}).click();
+		},1000);
+		
+		$('#btn_choosePiece').live("click", function(){
+			var piece = '';
+			$('.choose_pieces').each(function(){
+				if( $(this).is(':checked') ){
+					piece = $(this).next().html();
+				}
+			});
+		
+			socket.emit("playerChoseGamePiece", piece);
+			$.fancybox.close();
+		});
+		
+	});
+	
+	socket.on('dealtCards', function(cards){
+		appendStatus("The cards have been dealt.");
+		for(var i=0; i<cards.length; i++){
+			var type = cards[i].type == 'weapons' ? '-->' : cards[i].type == 'rooms' ? '[ ]' : ':-)'
+			$('#cards').append('<div>'+type+' '+cards[i].value+'</div>');
+		}
 	});
 	
 	socket.on('playerIsReady', function(name){
@@ -201,8 +252,9 @@ $(document).ready(function(){
 			}
 		});
 	});
-
+	
 	//Functions
+
 	function appendStatus(message){
 		var status = $('#status').html();
 		status += message + "<br/>";
