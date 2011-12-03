@@ -1,10 +1,15 @@
 var util = require("util");
 var inspect = require('util').inspect;
+var repl=require('repl');
 
 //Controls whether debug messages from this object get printed or not
 
 var GameState = require('./gamestate');
 var gameState = new GameState();
+
+var local=repl.start("cluelesssrv:>");
+local.context.srv=gameState;
+
 gameState.setupPieces();
 
 gameState.setupDecks();
