@@ -104,7 +104,7 @@ exports.setupsocketserver = function(io){
 			player.ready = true;
 			gameState.readyPlayers++;
 			gameState.notReadyPlayers--;
-			if(gameState.readyPlayers==gameState.totalPlayers && gameState.readyPlayers>=2){
+			if(gameState.readyPlayers==gameState.totalPlayers && gameState.readyPlayers>=3){
 				putsMessage(['Gamestart', 'Game is started!']);
 				gameState.status='playing';
 				io.sockets.emit('alert', 'All players are ready. Wait for players to choose pieces.');
@@ -118,67 +118,98 @@ exports.setupsocketserver = function(io){
 		});
 		socket.on('playerChoseGamePiece', function(message) {
 			thePlayer = gameState.getPlayerBySessionID(socket.id);
-			thePiece = gameState.getPieceByName(message);
+			//has player already picked?
+			if(thePlayer.piece == ''){
+				thePiece = gameState.getPieceByName(message);
 
-			thePlayer.piece=thePiece;
-			thePiece.player=thePlayer;
-			thePiece.available = false;
-			theMessage = thePlayer.name + ' chose ' + message;
-			io.sockets.emit('alert', theMessage); //Prints message to console
-			
-			/*
-			So to get this working for players to choose pieces, we first kick this off above in the startGame function
-			then that calls the chosePieces function where var currentChoosingPlayer is set to 0, after they are sent
-			a message to chose a piece, that var is incremented. Then the server sits and waits for the player to chose a piece,
-			once they have choosen, then this function is called, the piece gets stored and removed from the available list
-			then we call the next player until all players have choosen.		
-			*/
-			if (gameState.currentChoosingPlayer<gameState.playersInGame.length){
-				gameState.chosePieces(io);
-			}else gameState.startGame();
+				thePlayer.piece=thePiece;
+				thePiece.playerName=thePlayer.name;
+				thePiece.available = false;
+				theMessage = thePlayer.name + ' chose ' + message;
+				io.sockets.emit('alert', theMessage); //Prints message to console
+				
+				/*
+				So to get this working for players to choose pieces, we first kick this off above in the startGame function
+				then that calls the chosePieces function where var currentChoosingPlayer is set to 0, after they are sent
+				a message to chose a piece, that var is incremented. Then the server sits and waits for the player to chose a piece,
+				once they have choosen, then this function is called, the piece gets stored and removed from the available list
+				then we call the next player until all players have choosen.		
+				*/
+				if (gameState.currentChoosingPlayer<gameState.playersInGame.length){
+					gameState.chosePieces(io);
+				}else gameState.startGame();
+			}
 			//The function shall broadcast to the other players that the particular player choose a game piece
 			//The function shall set the player's game piece in the object that is storing the player's status
 		});
 
 		socket.on('playerLocationChosen', function(locationName) {
-			var locationCheck = gameState.checkLocation(socket.id,locationName);
-			if (locationCheck===true){
+			if(gameState.getPlayerBySessionID(socket.id).status == 'currentPlayer'){
+				var locationCheck = gameState.checkLocation(socket.id,locationName);
 				var player=gameState.getPlayerBySessionID(socket.id);
-				gameState.setPlayerLocation(player,locationName);
-				io.sockets.emit('aPlayerLocationChosen',nameAndLocation);
-			}else io.sockets.sockets[socket.id].emit('badLocation','');
-			putsMessage(['aPlayerLocationChosen', nameAndLocation]); //Prints message to console
+				if (locationCheck===true){
+					gameState.setPlayerLocation(player,locationName);
+					io.sockets.emit('aPlayerLocationChosen',player);
+				}else io.sockets.sockets[socket.id].emit('badLocation','');
+				putsMessage(['aPlayerLocationChosen', player.piece.name +" moved to "+ locationName]); //Prints message to console
+			}
 			//The function shall broadcast to the other players that the particular player has moved to a location
 			//The function shall set the player's location in the object that is storing the player's status
 		});
 
 		socket.on('playerSuggestion', function(suggestion) {
-			io.sockets.emit('playerMadeSuggestion',suggestion)
-			putsMessage(['playerSuggestion', suggestion]); //Prints message to console
+			var player = gameState.getPlayerBySessionID(socket.id);
+			io.sockets.emit('alert',player.name + " has made a suggestion. \"It was "+ suggestion.character + " with the " + suggestion.weapon + " in the " + suggestion.room + ".\"");
+			putsMessage(['playerSuggestion', inspect(suggestion)]); //Prints message to console
 
-			var dpInfo = gameState.getFirstDisprovingPlayer(suggestion);
+			var dpInfo = gameState.getFirstDisprovingPlayer(player, suggestion);
 			if(dpInfo != ''){
-				io.sockets.sockets.dpInfo.player.sessionID.emit('disproveSuggestion',dpInfo.cards)
-			}else gameState.nextTurn();
+				util.puts('sending disproveSuggestion: ' + inspect(dpInfo));
+				io.sockets.sockets[dpInfo.player.sessionID].emit('disproveSuggestion',dpInfo.cards)
+			}else{
+				io.sockets.emit('alert', 'No one is able to disprove ' + player.name + "'s suggestion.");
+			};
 			//The function shall broadcast to the other players that the particular player has made a suggestion
 			//The function shall store the player's suggestion data
 		});
 
 		socket.on('playerDisprovedSuggestion', function(disprovingData) {
-			putsMessage(['aPlayerDisprovedSuggestion', disprovingData]); //Prints message to console
-			io.sockets.emit('playerDisprovedSuggestion','');
+			var player = gameState.getPlayerBySessionID(socket.id);
+			putsMessage(['PlayerDisprovedSuggestion', disprovingData]); //Prints message to console
+			io.sockets.emit('alert',player.name + " has disproved the suggestion.");
 			var sessionID = gameState.getCurrentPlayer().sessionID;
-			io.sockets.sockets[sessionID].emit('suggestionDisproved',disprovingData)
-			gameState.nextTurn();
+			io.sockets.sockets[sessionID].emit('suggestionDisproved',player,disprovingData)
 			//The function shall broadcast to the other players that the particular player has shared a card with the suggesting player
 			//The function shall send a message to the suggesting player with the shared card data
 		});
 
 		socket.on('playerAccusation', function(accusation) {
-			putsMessage(['playerMadeAccusation', accusation]); //Prints message to console
-			if(gamestate.checkAccusation()){
-				io.socket.emit('playerWon',accusation);
-			}else io.socket.emit('playerSuspended',accusation);
+			var player = gameState.getPlayerBySessionID(socket.id);
+			io.sockets.emit('alert', player.name + ' has made an accusation! It was ' + accusation.character + ' with the ' + accusation.weapon + ' in the ' + accusation.room + "!");
+			putsMessage(['playerMadeAccusation', inspect(accusation)]); //Prints message to console
+			if(gameState.checkAccusation(accusation)){
+				io.sockets.emit('playerWonByAccusation',player);
+				gameState.reset();
+			}else{
+				//suspend player
+				player.status = 'suspended';
+				io.sockets.emit('playerSuspended',player);
+				
+				//check to see if there are at least 2 non-suspended players
+				var nonsuspended = new Array();
+				for(var i = 0; i<gameState.turnList.length; i++){
+					if(gameState.turnList[i].status != 'suspended'){
+						nonsuspended.push(gameState.turnList[i]);
+					}
+				}
+				if(nonsuspended.length < 2){
+					io.sockets.emit('playerWonByDefault', nonsuspended[0]);
+					io.sockets.emit('alert', 'The answer was: ' + gameState.caseFile.characterCard + " did it with the " +gameState.caseFile.weaponCard + " in the " +gameState.caseFile.roomCard +".")
+					gameState.reset();
+				}else{
+					gameState.nextTurn();
+				}
+			}
 			//The function shall broadcast to the other players that the particular player has made a accusation
 			//The function shall store the player's accusation data
 			//The function shall check the player's accusation data against the case file
@@ -192,6 +223,18 @@ exports.setupsocketserver = function(io){
 			//The function shall broadcast the chat message to all the players and spectators
 			var player = gameState.getPlayerBySessionID(socket.id);
 			socket.broadcast.emit('bdcstChat', message, player);
+		});
+		
+		socket.on('playerEndTurn', function() {
+			//The function shall broadcast the chat message to all the players and spectators
+			var player = gameState.getPlayerBySessionID(socket.id);
+			if(gameState.getCurrentPlayer().name == player.name){
+				putsMessage(['playerEndTurn', player.name]); //Prints message to console
+				io.sockets.emit('alert', player.name + ' has ended their turn.');
+				gameState.nextTurn();
+			}else{
+				putsMessage(['playerEndTurn that wasnt current player!!!', player.name + ' should have been ' + gameState.getCurrentPlayer().name]); //Prints message to console
+			}
 		});
 
 		socket.on('playerQuit', function(playerName) {

@@ -116,10 +116,48 @@
 			<div class="container_header">Game Board</div>
 		</div>
 		<div id="gameBoard" class="ui-layout-center">
-			<div style="width:100%; text-align:center; position:absolute; top:50%;">
+			<div id="board_waiting" style="width:100%; text-align:center; position:absolute; top:50%;">
 				<span>Waiting for 3 players to be ready</span><br/>
 				<span>Ready: <span id="players_ready"></span>/<span id="total_players"></span></span>
 			</div>
+			
+			<table cellpadding=0 cellspacing=0 class="board" style="display:none;"><tbody>
+				<tr>
+					<td id="study" class="room room_clickable">Study</td>
+					<td><div id="hall_3" class="hall_horiz room_clickable"></div></td>
+					<td id="hall" class="room room_clickable">Hall</td>
+					<td><div id="hall_8" class="hall_horiz room_clickable"></div></td>
+					<td id="lounge" class="room room_clickable">Lounge</td>
+				</tr>
+				<tr>
+					<td><div id="hall_1" class="hall_vert room_clickable"></div></td>
+					<td></td>
+					<td><div id="hall_6" class="hall_vert room_clickable"></div></td>
+					<td></td>
+					<td><div id="hall_11" class="hall_vert room_clickable"></div></td>
+				</tr>
+				<tr>
+					<td id="library" class="room room_clickable">Library</td>
+					<td><div id="hall_4" class="hall_horiz room_clickable"></div></td>
+					<td id="billiard_room" class="room room_clickable">Billiard Room</td>
+					<td><div id="hall_9" class="hall_horiz room_clickable"></div></td>
+					<td id="dining_room" class="room room_clickable">Dining Room</td>
+				</tr>
+				<tr>
+					<td><div id="hall_2" class="hall_vert room_clickable"></div></td>
+					<td></td>
+					<td><div id="hall_7" class="hall_vert room_clickable"></div></td>
+					<td></td>
+					<td><div id="hall_12" class="hall_vert room_clickable"></div></td>
+				</tr>
+				<tr>
+					<td id="conservatory" class="room room_clickable">Conservatory</td>
+					<td><div id="hall_5" class="hall_horiz room_clickable"></div></td>
+					<td id="ballroom" class="room room_clickable">Ballroom</td>
+					<td><div id="hall_10" class="hall_horiz room_clickable"></div></td>
+					<td id="kitchen" class="room room_clickable">Kitchen</td>
+				</tr>
+			</tbody></table>
 		</div>
 	</div>
 	<div id="status_container" class="ui-layout-south">
@@ -138,7 +176,7 @@
 			</div>
 			<div id="detectivePad" class="ui-layout-center" style="padding:10px;">
 			
-				<table cellspacing="0" cellpadding="0"><thead>
+				<table class="detectivePad" cellspacing="0" cellpadding="0"><thead>
 					<tr><td colspan="2" style="text-align:center;">Suspects</td></tr>
 				</thead><tbody>
 					<tr><td>Colonel Mustard</td><td><input type="checkbox" /></td></tr>
@@ -149,7 +187,7 @@
 					<tr><td>Mrs. White</td><td><input type="checkbox" /></td></tr>
 				</tbody></table>
 				
-				<table cellspacing="0" cellpadding="0"><thead>
+				<table class="detectivePad" cellspacing="0" cellpadding="0"><thead>
 					<tr><td colspan="2" style="text-align:center;">Weapons</td></tr>
 				</thead><tbody>
 					<tr><td>Knife</td><td><input type="checkbox" /></td></tr>
@@ -160,12 +198,12 @@
 					<tr><td>Wrench</td><td><input type="checkbox" /></td></tr>
 				</tbody></table>
 				
-				<table cellspacing="0" cellpadding="0"><thead>
+				<table class="detectivePad" cellspacing="0" cellpadding="0"><thead>
 					<tr><td colspan="2" style="text-align:center;">Rooms</td></tr>
 				</thead><tbody>
 					<tr><td>Hall</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Lounge</td><td><input type="checkbox" /></td></tr>
-					<tr><td>Dining Room</td><td><input type="checkbox" /></td></tr>
+					<tr><td>dining_room</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Kitchen</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Ball Room</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Conservatory</td><td><input type="checkbox" /></td></tr>
@@ -183,19 +221,11 @@
 				<div id="people" class="ui-layout-center">
 					<h3>Players</h3>
 					<div id="player_list" style="margin-left:10px;">
-						<ul>
-							<!--<li>[Waiting] - Dummy1</li>
-							<li>[Ready] - Dummy2</li>
-							<li>[Ready] - Dummy3</li>-->
-						</ul>
+						<ul></ul>
 					</div>
 					<h3>Spectators</h3>
 					<div id="spectator_list" style="margin-left:10px;">
-						<ul>
-							<!--<li>Abe</li>
-							<li>Britta</li>
-							<li>Carly</li>-->
-						</ul>
+						<ul></ul>
 					</div>
 				</div>
 			</div>
@@ -251,6 +281,60 @@
 	</div>
 </div>
 
+<a id="modal_suggestion" href="#modal_suggestion_content"></a>
+<div style="display:none;">
+	<div id="modal_suggestion_content" style="border:1px solid black; padding:10px 10px 40px;">
+		<h1>Make a suggestion</h1>
+		<p>It was <span id="suggestion_title_piece" style="font-weight:bold"></span> with the <span id="suggestion_title_weapon" style="font-weight:bold"></span> in <span id="suggestion_title_room" style="font-weight:bold"></span>.</p>
+		<table><tbody>
+			<tr><td><input type="radio" name="suggestion_pieces" class="suggestion_pieces" checked="checked" /><span>Miss Scarlet</span></td><td><input type="radio" name="suggestion_weapons" class="suggestion_weapons" checked="checked" /><span>Knife</span></td></tr>
+			<tr><td><input type="radio" name="suggestion_pieces" class="suggestion_pieces" /><span>Colonel Mustard</span></td><td><input type="radio" name="suggestion_weapons" class="suggestion_weapons" /><span>Candlestick</span></td></tr>
+			<tr><td><input type="radio" name="suggestion_pieces" class="suggestion_pieces" /><span>Mrs. White</span></td><td><input type="radio" name="suggestion_weapons" class="suggestion_weapons" /><span>Pistol</span></td></tr>
+			<tr><td><input type="radio" name="suggestion_pieces" class="suggestion_pieces" /><span>Mr. Green</span></td><td><input type="radio" name="suggestion_weapons" class="suggestion_weapons" /><span>Rope</span></td></tr>
+			<tr><td><input type="radio" name="suggestion_pieces" class="suggestion_pieces" /><span>Mrs. Peacock</span></td><td><input type="radio" name="suggestion_weapons" class="suggestion_weapons" /><span>Lead Pipe</span></td></tr>
+			<tr><td><input type="radio" name="suggestion_pieces" class="suggestion_pieces" /><span>Professor Plum</span></td><td><input type="radio" name="suggestion_weapons" class="suggestion_weapons" /><span>Wrench</span></td></tr>
+		</tbody></table>
+		<div style="float:right; margin:5px 0 10px;">
+			<input type="button" value="Cancel" onClick="$.fancybox.close()"/>
+			<input id="btn_suggest" type="button" value="Suggest" />
+		</div>
+	</div>
+</div>
+
+<a id="modal_accusation" href="#modal_accusation_content"></a>
+<div style="display:none;">
+	<div id="modal_accusation_content" style="border:1px solid black; padding:10px 10px 40px;">
+		<h1>Make an accusation</h1>
+		<p style="color:red; font-weight:bold; width:300px;">Warning: a wrong accusation will disqualify you from moving or winning. However, you win if your accusation is correct!</p>
+		<p>It was <span id="accusation_title_piece" style="font-weight:bold"></span> with the <span id="accusation_title_weapon" style="font-weight:bold"></span> in <span id="accusation_title_room" style="font-weight:bold"></span>.</p>
+		<table><tbody>
+			<tr><td><input type="radio" name="accusation_pieces" class="accusation_pieces" checked="checked" /><span>Miss Scarlet</span></td><td><input type="radio" name="accusation_weapons" class="accusation_weapons" checked="checked" /><span>Knife</span></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms" checked="checked" /><span>Kitchen</span></td></tr>
+			<tr><td><input type="radio" name="accusation_pieces" class="accusation_pieces" /><span>Colonel Mustard</span></td><td><input type="radio" name="accusation_weapons" class="accusation_weapons" /><span>Candlestick</span></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms"/><span>Ballroom</span></td></tr>
+			<tr><td><input type="radio" name="accusation_pieces" class="accusation_pieces" /><span>Mrs. White</span></td><td><input type="radio" name="accusation_weapons" class="accusation_weapons" /><span>Pistol</span></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms"/><span>Conservatory</span></td></tr>
+			<tr><td><input type="radio" name="accusation_pieces" class="accusation_pieces" /><span>Mr. Green</span></td><td><input type="radio" name="accusation_weapons" class="accusation_weapons" /><span>Rope</span></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms"/><span>Dining Room</span></td></tr>
+			<tr><td><input type="radio" name="accusation_pieces" class="accusation_pieces" /><span>Mrs. Peacock</span></td><td><input type="radio" name="accusation_weapons" class="accusation_weapons" /><span>Lead Pipe</span></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms" /><span>Billiard Room</span></td></tr>
+			<tr><td><input type="radio" name="accusation_pieces" class="accusation_pieces" /><span>Professor Plum</span></td><td><input type="radio" name="accusation_weapons" class="accusation_weapons" /><span>Wrench</span></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms" /><span>Library</span></td></tr>
+			<tr><td></td><td></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms" /><span>Lounge</span></td></tr>
+			<tr><td></td><td></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms" /><span>Hall</span></td></tr>
+			<tr><td></td><td></td><td><input type="radio" name="accusation_rooms" class="accusation_rooms" /><span>Study</span></td></tr>
+		</tbody></table>
+		<div style="float:right; margin:5px 0 10px;">
+			<input type="button" value="Cancel" onClick="$.fancybox.close()"/>
+			<input id="btn_accuse" type="button" value="Accuse" />
+		</div>
+	</div>
+</div>
+
+<a id="modal_disprove" href="#modal_disprove_content"></a>
+<div style="display:none;">
+	<div id="modal_disprove_content" style="border:1px solid black; padding:10px;">
+		<h1>Disprove suggestion</h1>
+		<p>Pick a card from your hand to disprove the suggestion.</p>
+		<div id="disprove_choices"></div>
+		<input id="disprove_suggestion" type="button" value="Disprove" />
+	</div>
+</div>
+
 <a id="modal_alert" href="#modal_alert_content"></a>
 <div style="display:none;">
 	<div id="modal_alert_content" style="border:1px solid black; padding:10px;">
@@ -292,25 +376,25 @@
 		background-color:darkGray !important;
 	}
 	
-	table{
+	table.detectivePad{
 		width:100%;
 		margin-top:15px;
 	}
 	
-	table td{
+	table.detectivePad td{
 		white-space:nowrap;
 	}
 	
-	table thead td{
+	table.detectivePad thead td{
 		font-weight:bold;
 	}
 	
-	table td:first-child{
+	table.detectivePad td:first-child{
 		width:60%;
 		text-align:right;
 	}
 	
-	table td:last-child{
+	table.detectivePad td:last-child{
 		padding-left:10px;
 		text-align:left;
 	}
@@ -319,6 +403,67 @@
 		font-size:12px;
 	}
 	
+	table.board{
+		width:100%;
+		height:100%;
+		margin:0;
+		padding:5px;
+		text-align:center;
+	}
+	
+	table.board td{
+		width:20%;
+		background-color:#222;
+		white-space: nowrap;
+		color:SteelBlue;
+	}
+	
+	table.board td.room{
+		background-color:lightGray;
+		padding:10px;
+	}
+	
+	table.board tr{
+		height:20%;
+	}
+	
+	.hall_horiz{
+		width:100%;
+		height: 50%;
+		background-color: lightGray;
+	}
+	
+	.hall_vert{
+		width:50%;
+		height: 100%;
+		background-color: lightGray;
+		margin:auto;
+	}
+	
+	.piece{
+		width:12px;
+		height:12px;
+	}
+	
+	#miss_scarlet{
+		background-color:red;
+	}
+	#col_mustard{
+		background-color:yellow;
+	}
+	#mrs_white{
+		background-color:SeaShell;
+	}
+	#mr_green{
+		background-color:DarkSeaGreen;
+	}
+	#mrs_peacock{
+		background-color:RoyalBlue;
+	}
+	#prof_plum{
+		background-color:purple;
+	}
+
 </style>
 
 </html>

@@ -1,6 +1,6 @@
 Piece  = function(){
 	this.name = '';
-	this.player='';
+	this.playerName='';
 	this.available='';
 	this.location='';
 }
