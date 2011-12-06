@@ -235,21 +235,34 @@ GameState.prototype.chosePieces = function(io){
 GameState.prototype.setCurrentPlayer = function(io){
 	//finding the next eligible player
 	util.puts('it was ' + this.players[this.turnNumber].name + '\'s turn');
-	for(var i=this.turnNumber+1; i<(this.players.length + this.turnNumber); i++){
-		if(this.players[i % (this.players.length)].status != 'suspended'){
-			this.turnNumber = i % (this.players.length);
+		util.puts(inspect(this.players));
+	for(var i=this.turnNumber+1; i<(this.turnList.length + this.turnNumber); i++){
+		if(this.turnList[i % (this.turnList.length)].status != 'suspended'){
+			this.turnNumber = i % (this.turnList.length);
 			break;
 		}
 	}
+	
 	util.puts('it is now ' + this.players[this.turnNumber].name + '\'s turn');
+
+	util.puts('it is now ' + this.turnNumber);
+	util.puts('turnList: '  + inspect(this.turnList));
 	//Setting other players to notCurrentPlayer except suspended ones
 	for (var i=0;i<this.turnList.length;i++){
+	util.puts(i + ' loop');
 			if(this.turnList[i].status != 'suspended'){
-				if (i==this.turnNumber){
+			util.puts(i + ' not suspended ' + this.turnNumber);
+				if (this.turnNumber == i){
+					util.puts(i + ' i is this turnnumber ' + this.turnNumber);
 					this.turnList[i].status='currentPlayer';
-				}else this.turnList[i].status='notCurrentPlayer';
+					
+				}else {
+					util.puts(i + ' i is NOT this turnnumber ' + this.turnNumber);
+					this.turnList[i].status='notCurrentPlayer';
+				}
 			}
 	}
+	util.puts(inspect(this.players));
 }
 
 GameState.prototype.addPiece = function(name, player,GameState){
