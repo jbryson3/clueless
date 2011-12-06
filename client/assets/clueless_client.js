@@ -420,6 +420,11 @@ $(document).ready(function(){
 		appendStatus(player.name + " has made a suggestion. Was it " + suggestion.character + " with the " + suggestion.weapon + " in the " + suggestion.room + "?");
 	});
 	
+	socket.on('playerWasMoved', function(suggestion){
+		appendStatus(suggestion.character + " and the " + suggestion.weapon + " have been moved to the " + suggestion.room + ".");
+		moveTo(getPieceforName(suggestion.character), suggestion.room);
+	});
+	
 	socket.on('disproveSuggestion', function(cards){
 		$('#disprove_choices').html('');
 		for(var i=0; i<cards.length; i++){

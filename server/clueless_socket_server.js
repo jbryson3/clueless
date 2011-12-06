@@ -161,7 +161,13 @@ exports.setupsocketserver = function(io){
 			var player = gameState.getPlayerBySessionID(socket.id);
 			io.sockets.emit('alert',player.name + " has made a suggestion. \"It was "+ suggestion.character + " with the " + suggestion.weapon + " in the " + suggestion.room + ".\"");
 			putsMessage(['playerSuggestion', inspect(suggestion)]); //Prints message to console
-
+			
+			//if piece is being played, move player to suggested room
+			if(!gameState.getPieceByName(suggestion.character).available){
+				gameState.setPlayerLocation(gameState.getPlayerByName(gameState.getPieceByName(suggestion.character).playerName), suggestion.room);
+			}
+			io.sockets.emit('playerWasMoved',suggestion);
+			
 			var dpInfo = gameState.getFirstDisprovingPlayer(player, suggestion);
 			if(dpInfo != ''){
 				util.puts('sending disproveSuggestion: ' + inspect(dpInfo));
