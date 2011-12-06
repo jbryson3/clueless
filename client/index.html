@@ -38,7 +38,7 @@
 				defaults__closable : false,
 				defaults__resizable : false,
 				defaults__spacing_open : 3,
-				east__size: .7,
+				west__size: .7,
 				center__minSize: "125"
 			});
 			$('#rightSideTopRight').layout({
@@ -192,7 +192,7 @@
 				</thead><tbody>
 					<tr><td>Knife</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Candlestick</td><td><input type="checkbox" /></td></tr>
-					<tr><td>Revolver</td><td><input type="checkbox" /></td></tr>
+					<tr><td>Pistol</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Rope</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Lead Pipe</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Wrench</td><td><input type="checkbox" /></td></tr>
@@ -203,7 +203,7 @@
 				</thead><tbody>
 					<tr><td>Hall</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Lounge</td><td><input type="checkbox" /></td></tr>
-					<tr><td>dining_room</td><td><input type="checkbox" /></td></tr>
+					<tr><td>Dining Room</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Kitchen</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Ball Room</td><td><input type="checkbox" /></td></tr>
 					<tr><td>Conservatory</td><td><input type="checkbox" /></td></tr>
@@ -213,7 +213,7 @@
 				</tbody></table>
 			</div>
 		</div>
-		<div id="rightSideTopRight" class="ui-layout-east">
+		<div id="rightSideTopRight" class="ui-layout-west">
 			<div id="people_container" class="ui-layout-center">
 				<div id="people_header" class="ui-layout-north">
 					<div class="container_header">People</div>
@@ -235,6 +235,7 @@
 						<div class="container_header">Actions</div>
 					</div>
 					<div id="actions" class="ui-layout-center">
+						<p id="move_text" style="color:steelBlue; margin:5px; display:none;">You can move your piece by clicking on any available space highlighted in orange.</p>
 						<div id="btn_actions_ready" style="text-align:center; display:none;"><input type="button" value="Ready!" /></div>
 						<div id="btn_actions_suggestion" style="text-align:center; display:none;"><input type="button" value="Make a Suggestion" /></div>
 						<div id="btn_actions_accusation" style="text-align:center; display:none;"><input type="button" value="Make an Accusation" /></div>
@@ -441,8 +442,12 @@
 	}
 	
 	.piece{
-		width:12px;
-		height:12px;
+		width:18px;
+		height:18px;
+		border-radius:10px;
+		position:inherit;
+		top:auto;
+		left:auto;
 	}
 	
 	#miss_scarlet{
@@ -462,6 +467,9 @@
 	}
 	#prof_plum{
 		background-color:purple;
+	}
+	li{
+		list-style: none;
 	}
 
 </style>

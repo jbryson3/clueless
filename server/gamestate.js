@@ -402,16 +402,16 @@ GameState.prototype.startGame = function(){
 	io.sockets.emit('startGame', this.turnList);
 	
 	this.turnList[0].status='currentPlayer';
-	io.sockets.sockets[this.turnList[this.turnNumber].sessionID].emit('startTurn',this.getAvailableLocations(this.turnList[this.turnNumber]));
-	io.sockets.emit('alert', 'It\'ts '+this.turnList[this.turnNumber].name+'\'s turn.');
+	io.sockets.sockets[this.turnList[this.turnNumber].sessionID].emit('startTurn',this.turnList[this.turnNumber].piece.name, this.getAvailableLocations(this.turnList[this.turnNumber]));
+	io.sockets.emit('alert', 'It\'s '+this.turnList[this.turnNumber].name+'\'s turn.');
 	
 	this.status='playing';
 }
 
 GameState.prototype.nextTurn = function(){
 	this.setCurrentPlayer(io);
-	io.sockets.sockets[this.turnList[this.turnNumber].sessionID].emit('startTurn',this.getAvailableLocations(this.turnList[this.turnNumber]));
-	io.sockets.emit('alert', 'It\'ts '+this.turnList[this.turnNumber].name+'\'s turn.');
+	io.sockets.sockets[this.turnList[this.turnNumber].sessionID].emit('startTurn',this.turnList[this.turnNumber].piece.name, this.getAvailableLocations(this.turnList[this.turnNumber]));
+	io.sockets.emit('alert', 'It\'s '+this.turnList[this.turnNumber].name+'\'s turn.');
 }
 
 GameState.prototype.getFirstDisprovingPlayer = function(player, suggestion){

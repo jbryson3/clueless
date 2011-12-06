@@ -150,6 +150,11 @@ $(document).ready(function(){
 			$(this).css('background-color', 'lightGray').removeClass('room_can_click');
 		});
 		
+		$('#'+myPiece).css('border','0');
+		$('#move_text').hide();
+		$('#btn_actions_suggestion').hide();
+		$('#btn_actions_accusation').hide();
+		$('#btn_actions_endTurn').hide();
 		$.fancybox.close();
 	});
 	
@@ -194,6 +199,8 @@ $(document).ready(function(){
 		socket.emit('playerDisprovedSuggestion', $('.disprove_choice:checked').next().html());
 		$.fancybox.close();
 	});
+	
+	$('input:checkbox').removeAttr('checked');
 	
 	// Socket IO stuff
 	var socket;
@@ -339,7 +346,7 @@ $(document).ready(function(){
 			if(turnList[i].name == myName){
 				myRoom = turnList[i].piece.location.name;
 			}
-			$('#' + turnList[i].piece.location.name).append('<div id="'+getPieceforName(turnList[i].piece.name)+'" class="piece"></div>');
+			$('#' + turnList[i].piece.location.name).append('<div id="'+getPieceforName(turnList[i].piece.name)+'" class="piece" style="position:relative; top:35%; left:35%;"></div>');
 		}
 	});
 
@@ -384,7 +391,7 @@ $(document).ready(function(){
 		$('#total_players').html(total);
 	});
 
-	socket.on('startTurn', function(locations){
+	socket.on('startTurn', function(piece, locations){
 		//Setting up locations that can be clicked
 		for(var i=0; i<locations.length; i++){
 			$('#' + locations[i].name).addClass('room_can_click').css({
@@ -394,6 +401,8 @@ $(document).ready(function(){
 		}
 		
 		$('#btn_actions_accusation').show();
+		$('#'+getPieceforName(piece)).css('border','2px solid black');
+		$('#move_text').show();
 	});
 	
 	socket.on('bdcstChat', function(message, player){
@@ -403,6 +412,8 @@ $(document).ready(function(){
 	socket.on('aPlayerLocationChosen', function(player){
 		appendStatus(player.name + " has moved " + player.piece.name + " to " + getRoomforID(player.piece.location.name));
 		moveTo(getPieceforName(player.piece.name), player.piece.location.name);
+		
+		$('#move_text').hide();
 	});
 	
 	socket.on('playerSuggestion', function(player, suggestion){
@@ -410,6 +421,7 @@ $(document).ready(function(){
 	});
 	
 	socket.on('disproveSuggestion', function(cards){
+		$('#disprove_choices').html('');
 		for(var i=0; i<cards.length; i++){
 			if(i==0){
 				$('#disprove_choices').append('<input type="radio" name="disprove_choice" class="disprove_choice" checked="checked"/><span>'+cards[i].value+'</span><br/>');
@@ -442,7 +454,7 @@ $(document).ready(function(){
 	
 	socket.on('availablePieces', function(availablePieces){
 		
-		var content = '';
+		var content = '<h1>Choose your piece</h1>';
 		for(var i=0; i<availablePieces.length; i++){
 			if(i==0){
 				content += availablePieces[i].available ? '<input type="radio" name="choose_pieces" class="choose_pieces" checked="checked"/><span>' + availablePieces[i].name + '</span><br />' : '<input type="radio" disabled="disabled"><span>' + availablePieces[i].name + '</span><br />';
@@ -473,7 +485,7 @@ $(document).ready(function(){
 			});
 		
 			socket.emit("playerChoseGamePiece", piece);
-			myPiece = getPieceforID(piece);
+			myPiece = getPieceforName(piece);
 			$.fancybox.close();
 		});
 		
@@ -510,11 +522,20 @@ $(document).ready(function(){
 		$('#btn_actions_suggestion').hide();
 		$('#btn_actions_accusation').hide();
 		$('#btn_actions_endTurn').hide();
+		$('#move_text').hide();
+		$('input:checkbox').removeAttr('checked');
 	}
 	
 	function moveTo(piece, location){
 		$('#'+piece).remove();
 		$('#' + location).append('<div id="'+piece+'" class="piece"></div>');
+		if( !$('#'+piece).parent().hasClass('room') ){
+			$('#'+piece).css({
+				'position':'relative',
+				'top':'35%',
+				'left':'35%'
+			});
+		}
 	}
 	
 	function getPieceforName(name){
